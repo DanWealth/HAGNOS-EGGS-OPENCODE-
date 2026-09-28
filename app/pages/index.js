@@ -1,14 +1,9 @@
 import { useState } from "react";
-
-const C = {
-  ink: "#0A0A0A", volt: "#00E676", sun: "#FFD600", tang: "#FF6D00",
-  sky: "#00B0FF", grape: "#7C4DFF", rose: "#FF2E93", mist: "#F2F5F7"
-};
+import { theme as C, prices } from "../lib/theme";
 
 export default function Home() {
   const [size, setSize] = useState("Large");
   const [crates, setCrates] = useState(10);
-  const prices = { Large: 4500, Medium: 4000, Pullet: 3200 };
   const ok = crates >= 10;
   const total = crates * prices[size];
 
