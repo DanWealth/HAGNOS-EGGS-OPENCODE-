@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hagnos Eggs — design.html</title>
+<style>
+  :root { --ink:#0A0A0A; --volt:#00E676; --sun:#FFD600; --tang:#FF6D00; --sky:#00B0FF; --grape:#7C4DFF; --rose:#FF2E93; --mist:#F2F5F7; }
+  * { box-sizing:border-box; font-family:Inter,system-ui,sans-serif; }
+  body { margin:0; background:var(--mist); color:var(--ink); }
+  header { background:var(--ink); color:#fff; padding:24px; border-bottom:6px solid var(--volt); }
+  header h1 span { color:var(--sun); }
+  main { max-width:720px; margin:0 auto; padding:24px; display:grid; gap:20px; }
+  section { background:#fff; border:2px solid var(--ink); border-radius:12px; padding:20px; box-shadow:3px 3px 0 var(--ink); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .sw { width:110px; border:2px solid var(--ink); border-radius:8px; overflow:hidden; }
+  .sw div { height:48px; } .sw span { display:block; padding:6px; font-size:12px; font-weight:700; }
+  .btn { border:2px solid var(--ink); border-radius:8px; padding:12px 20px; font-weight:800; box-shadow:3px 3px 0 var(--ink); cursor:pointer; }
+  .b1 { background:var(--volt); } .b2 { background:var(--sun); } .b3 { background:var(--sky); }
+  input, select { width:100%; padding:12px; border:2px solid var(--ink); border-radius:8px; font-size:16px; margin-top:8px; }
+  label { font-weight:800; }
+</style>
+</head>
+<body>
+<header><h1>Hagnos Eggs <span>— design.html</span></h1><p>Colors, typography, buttons, sample input</p></header>
+<main>
+  <section><h2>1. Colors</h2><div class="row">
+    <div class="sw"><div style="background:#00E676"></div><span>volt #00E676</span></div>
+    <div class="sw"><div style="background:#FFD600"></div><span>sun #FFD600</span></div>
+    <div class="sw"><div style="background:#FF6D00"></div><span>tang #FF6D00</span></div>
+    <div class="sw"><div style="background:#00B0FF"></div><span>sky #00B0FF</span></div>
+    <div class="sw"><div style="background:#7C4DFF"></div><span>grape #7C4DFF</span></div>
+    <div class="sw"><div style="background:#FF2E93"></div><span>rose #FF2E93</span></div>
+  </div></section>
+  <section><h2>2. Typography</h2>
+    <h1 style="margin:0">Heading 1 — Lock 12 crates</h1>
+    <h3>Heading 3 — Monday window open</h3>
+    <p>Body text — Prices locked. Closes Mon 11:59 PM. Wallet applies first.</p>
+  </section>
+  <section><h2>3. Styled buttons</h2><div class="row">
+    <button class="btn b1">Lock order</button>
+    <button class="btn b2">Apply wallet</button>
+    <button class="btn b3">View route</button>
+  </div></section>
+  <section><h2>4. Sample input</h2>
+    <label>Phone number<input placeholder="0803 000 0000"></label>
+    <label>Egg size<select><option>Large — ₦4,500</option><option>Medium — ₦4,000</option><option>Pullet — ₦3,200</option></select></label>
+  </section>
+</main>
+</body>
+</html>

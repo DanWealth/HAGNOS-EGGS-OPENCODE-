@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hagnos Eggs — Design System Preview (Bright)</title>
+<style>
+  :root {
+    --ink: #0A0A0A;
+    --paper: #FFFFFF; --mist: #F2F5F7;
+    --volt: #00E676; --volt-dark: #00A651;
+    --sun: #FFD600; --sun-soft: #FFF6BF;
+    --tang: #FF6D00; --tang-soft: #FFE3CC;
+    --sky: #00B0FF; --sky-soft: #D6F3FF;
+    --grape: #7C4DFF; --grape-soft: #E7DEFF;
+    --rose: #FF2E93; --rose-soft: #FFD9EA;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
+  body { margin: 0; background: var(--mist); color: var(--ink); }
+  header { background: var(--ink); color: #fff; padding: 24px; border-bottom: 6px solid var(--volt); }
+  header h1 { margin: 0 0 4px; } header h1 span { color: var(--sun); }
+  header p { margin: 0; opacity: .85; }
+  main { max-width: 1000px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+  section { background: #fff; border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(10,10,10,.12); border: 2px solid var(--ink); }
+  h2 { margin-top: 0; font-size: 18px; border-bottom: 3px solid var(--sun); padding-bottom: 8px; }
+  .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+  .swatch { width: 128px; border-radius: 8px; overflow: hidden; border: 2px solid var(--ink); }
+  .swatch div { height: 56px; } .swatch span { display: block; padding: 6px; font-size: 12px; font-weight: 700; background: #fff; }
+  .btn { border: 2px solid var(--ink); border-radius: 8px; padding: 12px 20px; font-weight: 800; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); }
+  .btn-primary { background: var(--volt); color: var(--ink); }
+  .btn-accent { background: var(--sun); color: var(--ink); }
+  .btn-sky { background: var(--sky); color: var(--ink); }
+  .btn-grape { background: var(--grape); color: #fff; }
+  .btn-danger { background: var(--rose); color: #fff; }
+  .sizes { display: flex; gap: 8px; } .size { border: 2px solid var(--ink); border-radius: 8px; padding: 12px 18px; font-weight: 800; cursor: pointer; background: #fff; }
+  .size.active { background: var(--sun); box-shadow: 3px 3px 0 var(--ink); }
+  .stepper { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 800; }
+  .stepper button { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); background: var(--volt); font-size: 22px; font-weight: 900; }
+  .ok { background: var(--volt); border: 2px solid var(--ink); display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 800; }
+  .banner { background: var(--ink); color: #fff; border-radius: 8px; padding: 12px 16px; font-weight: 800; border: 2px solid var(--ink); }
+  .banner b { color: var(--volt); } .banner small { display: block; font-weight: 400; color: var(--sun); }
+  .card { border: 2px solid var(--ink); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; background: var(--sky-soft); }
+  .chip { background: var(--sun); border: 2px solid var(--ink); border-radius: 20px; padding: 4px 12px; font-weight: 800; font-size: 13px; }
+  .reminder { background: var(--sun-soft); border: 2px solid var(--ink); border-left: 8px solid var(--tang); padding: 12px; border-radius: 8px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: var(--ink); color: var(--sun); padding: 8px; text-align: left; }
+  td { border-bottom: 2px solid var(--mist); padding: 8px; }
+  tr:nth-child(even) td { background: var(--grape-soft); }
+</style>
+</head>
+<body>
+<header><h1>Hagnos Eggs <span>— Bright Design System</span></h1><p>High-contrast preview: volt green, sun yellow, tang orange, sky blue, grape, rose</p></header>
+<main>
+  <section><h2>1. New color tokens</h2><div class="swatches">
+    <div class="swatch"><div style="background:#00E676"></div><span>volt #00E676</span></div>
+    <div class="swatch"><div style="background:#FFD600"></div><span>sun #FFD600</span></div>
+    <div class="swatch"><div style="background:#FF6D00"></div><span>tang #FF6D00</span></div>
+    <div class="swatch"><div style="background:#00B0FF"></div><span>sky #00B0FF</span></div>
+    <div class="swatch"><div style="background:#7C4DFF"></div><span>grape #7C4DFF</span></div>
+    <div class="swatch"><div style="background:#FF2E93"></div><span>rose #FF2E93</span></div>
+    <div class="swatch"><div style="background:#0A0A0A"></div><span>ink #0A0A0A</span></div>
+  </div></section>
+  <section><h2>2. Buttons</h2>
+    <button class="btn btn-primary">Lock 12 crates — Monday</button>
+    <button class="btn btn-accent">Apply wallet ₦4,500</button>
+    <button class="btn btn-sky">View route</button>
+    <button class="btn btn-grape">Trigger offset</button>
+    <button class="btn btn-danger">Cancel hold</button>
+  </section>
+  <section><h2>3. Size selector (Large / Medium / Pullet)</h2>
+    <div class="sizes"><div class="size active">Large</div><div class="size">Medium</div><div class="size">Pullet</div></div>
+  </section>
+  <section><h2>4. Crate stepper (MOV ≥ 10)</h2>
+    <div class="stepper"><button>−</button> 12 crates <button>+</button></div>
+    <p><span class="ok">✓ MOV met (min 10 crates)</span></p>
+  </section>
+  <section><h2>5. Price-lock banner + countdown</h2>
+    <div class="banner"><b>Monday window OPEN</b> — prices locked<small>Closes Mon 11:59 PM (Africa/Lagos) • 04:12:33 left</small></div>
+  </section>
+  <section><h2>6. Order card + wallet chip</h2>
+    <div class="card"><div><b>Bakery — 12× Large</b><br><small>Held: ₦54,000 • Ikeja route</small></div><span class="chip">Wallet ₦4,500</span></div>
+  </section>
+  <section><h2>7. Crate-swap reminder</h2>
+    <div class="reminder">Please have <b>12 clean, empty plastic crates</b> ready for swap upon delivery.</div>
+  </section>
+  <section><h2>8. Admin price table</h2>
+    <table><tr><th>Size</th><th>₦ / crate</th><th>Held orders</th></tr>
+    <tr><td>Large</td><td>4,500</td><td>38</td></tr><tr><td>Medium</td><td>4,000</td><td>51</td></tr>
+    <tr><td>Pullet</td><td>3,200</td><td>12</td></tr></table>
+  </section>
+</main>
+</body>
+</html>
