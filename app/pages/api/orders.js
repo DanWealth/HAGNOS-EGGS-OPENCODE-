@@ -6,6 +6,11 @@ const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+  // PRD §6.2 / criterion 2: orders only on Monday (Africa/Lagos). Override for tests.
+  if (process.env.ORDER_WINDOW_OVERRIDE !== "true") {
+    const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
+    if (lagosDay !== 1) return res.status(403).json({ error: "window-closed", message: "Orders open Monday only." });
+  }
   const { size_ordered, crates, zone } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });
   if (!crates || crates < 10) return res.status(400).json({ error: "mov-min-10" });
@@ -37,13 +42,15 @@ export default async function handler(req, res) {
   const total = subtotal - walletApplied;
 
   const id = randomUUID();
+  const no = await query("SELECT nextval('order_no_seq') AS n");
+  const orderNo = "HG-" + String(no.rows[0].n).padStart(6, "0");
   await query(
-    "INSERT INTO orders (id, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'FundsHeld',$9)",
-    [id, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z]
+    "INSERT INTO orders (id, order_no, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'FundsHeld',$10)",
+    [id, orderNo, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z]
   );
   await query("INSERT INTO payment_holds (id, order_id, amount, status) VALUES ($1,$2,$3,'held')", [randomUUID(), id, total]);
   if (walletApplied > 0) {
-    await query("INSERT INTO wallet_tx (id, user_id, amount, reason) VALUES ($1,$2,$3,'order_apply')", [randomUUID(), user.id, -walletApplied]);
+    await query("INSERT INTO wallet_tx (id, user_id, amount, reason, order_id) VALUES ($1,$2,$3,'order_apply',$4)", [randomUUID(), user.id, -walletApplied, id]);
     await query("UPDATE wallet_accounts SET balance = balance - $1 WHERE user_id=$2", [walletApplied, user.id]);
   }
   await query("UPDATE users SET first_order_done=TRUE WHERE id=$1", [user.id]);
@@ -52,5 +59,5 @@ export default async function handler(req, res) {
     [user.id, crates]
   );
   await notify(user.id, "order_locked", `Locked ${crates}x ${size_ordered} (${z}). Held N${total}, wallet -N${walletApplied}.`);
-  res.status(201).json({ id, total_held: total, wallet_applied: walletApplied, status: "FundsHeld", breakdown: { gross, discount, fee, crateFee } });
+  res.status(201).json({ id, order_no: orderNo, total_held: total, wallet_applied: walletApplied, status: "FundsHeld", breakdown: { gross, discount, fee, crateFee } });
 }

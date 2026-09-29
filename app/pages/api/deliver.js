@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     [randomUUID(), order_id, empty_crates, cracked_eggs]
   );
   if (credit > 0) {
-    await query("INSERT INTO wallet_tx (id, user_id, amount, reason) VALUES ($1,$2,$3,'breakage')", [randomUUID(), order.user_id, credit]);
+    await query("INSERT INTO wallet_tx (id, user_id, amount, reason, order_id) VALUES ($1,$2,$3,'breakage',$4)", [randomUUID(), order.user_id, credit, order_id]);
     await query("UPDATE wallet_accounts SET balance = balance + $1 WHERE user_id=$2", [credit, order.user_id]);
   }
   await query(

@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   await query("INSERT INTO order_adjustments (id, order_id, old_total, new_total, wallet_credit) VALUES ($1,$2,$3,$4,$5)",
     [randomUUID(), order_id, order.total_held, newTotal, credit]);
   if (credit > 0) {
-    await query("INSERT INTO wallet_tx (id, user_id, amount, reason) VALUES ($1,$2,$3,'downgrade')", [randomUUID(), order.user_id, credit]);
+    await query("INSERT INTO wallet_tx (id, user_id, amount, reason, order_id) VALUES ($1,$2,$3,'downgrade',$4)", [randomUUID(), order.user_id, credit, order_id]);
     await query("UPDATE wallet_accounts SET balance = balance + $1 WHERE user_id=$2", [credit, order.user_id]);
   }
   await notify(order.user_id, "downgraded", `Size now ${new_size}. Wallet +N${credit}.`);
