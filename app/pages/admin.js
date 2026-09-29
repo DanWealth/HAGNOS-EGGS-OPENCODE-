@@ -2,19 +2,41 @@ import { useEffect, useState } from "react";
 
 export default function Admin() {
   const [data, setData] = useState(null);
-  useEffect(() => {
-    fetch("/api/orders-list").then((r) => r.json()).then(setData);
-  }, []);
+  const [msg, setMsg] = useState("");
+  const load = () => fetch("/api/orders-list").then((r) => r.json()).then(setData);
+  useEffect(load, []);
+
+  async function post(path, body) {
+    setMsg("Working…");
+    const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+    const j = await r.json();
+    setMsg(r.ok ? JSON.stringify(j) : `Failed: ${j.error}`);
+    load();
+  }
+
   if (!data) return <p style={{ padding: 20 }}>Loading holds…</p>;
   return (
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>
       <h1>Admin — Monday holds: ₦{Number(data.totalHeld).toLocaleString()}</h1>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <button onClick={() => post("/api/routes")} style={b}>Build routes</button>
+        <button onClick={() => post("/api/cutoff")} style={b}>Close week (Mon 23:59)</button>
+        <button onClick={() => post("/api/settle")} style={b}>Settle Tuesday night</button>
+      </div>
+      {msg && <p><b>{msg}</b></p>}
       {data.orders.map((o) => (
         <div key={o.id} style={{ border: "2px solid #0A0A0A", borderRadius: 8, padding: 10, marginBottom: 8 }}>
           <b>{o.crates}× {o.size_ordered}</b> — ₦{Number(o.total_held).toLocaleString()} — {o.status} — {o.zone}
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <button onClick={() => post("/api/adjust", { order_id: o.id, new_size: "Medium" })} style={s}>↓ Medium</button>
+            <button onClick={() => post("/api/adjust", { order_id: o.id, new_size: "Pullet" })} style={s}>↓ Pullet</button>
+            <button onClick={() => post("/api/deliver", { order_id: o.id, cracked_eggs: 0, empty_crates: o.crates })} style={s}>✓ Delivered</button>
+          </div>
         </div>
       ))}
       {data.orders.length === 0 && <p>No orders yet.</p>}
     </div>
   );
 }
+const b = { padding: "10px 14px", fontWeight: 800, borderRadius: 8, border: "2px solid #0A0A0A", background: "#FFD600" };
+const s = { padding: "6px 10px", fontWeight: 700, borderRadius: 8, border: "2px solid #0A0A0A", background: "#fff" };
