@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { notify } from "../../lib/notify";
 import { randomUUID } from "crypto";
 
 const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
@@ -28,5 +29,12 @@ export default async function handler(req, res) {
     [id, userId, pw.rows[0].id, size_ordered, crates, unit, total, zone || "mainland"]
   );
   await query("INSERT INTO payment_holds (id, order_id, amount, status) VALUES ($1,$2,$3,'held')", [randomUUID(), id, total]);
+  // Phase 6: issue crates to ledger (first order includes crate fee per PRD)
+  await query(
+    "INSERT INTO crate_ledger (user_id, issued, returned) VALUES ($1,$2,0) ON CONFLICT (user_id) DO UPDATE SET issued = crate_ledger.issued + $2",
+    [userId, crates]
+  );
+  // Phase 7: notice (SMS/WhatsApp later)
+  await notify(userId, "order_locked", `Locked ${crates}x ${size_ordered}. Held N${total}.`);
   res.status(201).json({ id, total_held: total, status: "FundsHeld" });
 }

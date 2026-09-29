@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { notify } from "../../lib/notify";
 import { randomUUID } from "crypto";
 
 const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
@@ -23,5 +24,6 @@ export default async function handler(req, res) {
     await query("INSERT INTO wallet_tx (id, user_id, amount, reason) VALUES ($1,$2,$3,'downgrade')", [randomUUID(), order.user_id, credit]);
     await query("UPDATE wallet_accounts SET balance = balance + $1 WHERE user_id=$2", [credit, order.user_id]);
   }
+  await notify(order.user_id, "downgraded", `Size now ${new_size}. Wallet +N${credit}.`);
   res.status(200).json({ new_total: newTotal, wallet_credit: credit });
 }
