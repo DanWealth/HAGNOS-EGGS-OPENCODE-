@@ -90,4 +90,29 @@ Enforce MOV, cutoff, size enum, price immutability after lock server-side.
 
 ---
 
+## Build status (live, local-first)
+- Phase 0 CLOSED (`docs/PHASE_0_LOCK.md`): Paystack plan, MOV 10, Mon 23:59, wallet rules, fees (₦1,500 crate, Mainland ₦2,500 / Island ₦4,000, 5% hub discount).
+- Phase 1 DONE: bright tokens (`design-system/tokens.json`, volt/sun/tang/sky/grape/rose), `design.html` preview, wired into app via `app/lib/theme.js`.
+- Phase 2 DONE (`docs/PHASE_2_ARCHITECTURE.md`, `docker-compose.yml`, `db/schema.sql` + `db/auth-schema.sql`): Next.js + local Postgres (Docker) + Better Auth 1.2.12 + Cloudflare R2. No Vercel, no Supabase/Neon.
+- Phase 3 DONE: login works (/login, 7-day session), prices API, order save with MOV guard.
+- Phase 4 DONE: Lock button saves orders, /admin holds view, /prices week management.
+- Phase 5 DONE: downgrade auto-offset, breakage credit, wallet-first checkout with fee breakdown.
+- Phase 6 DONE: zone routes (500 crates/truck), crate ledger (issued/returned/owed).
+- Phase 7 DONE (log mode): notices feed; SMS/WhatsApp via Termii needs keys.
+- Phase 8 LIVE: /api/metrics vs 95% / <2% targets.
+- Phase 9 NEXT: pilot (needs Paystack keys for real money).
+- App: http://localhost:3000 (home, /admin, /prices, /login). DB: localhost:5432, 14 tables.
+
+## PRD acceptance mapping (new .md PRD §25)
+1. Admin sets prices → /prices + POST /api/price-weeks ✅
+2. Monday-only orders → weekday guard in POST /api/orders (override: ORDER_WINDOW_OVERRIDE=true) ✅
+3. MOV 10 enforced ✅ 4. Size select ✅ 5. Gateway authorize → Paystack pending keys (hold stub records payment_holds) ⏳
+6. Hold until validation ✅ 7–9. Adjust + auto calc + wallet credit ✅ 10. Wallet-first checkout ✅
+11. First-time crate fee ✅ 12. Swap reminder ✅ 13–14. Admin orders/dispatch ✅
+15. Breakage→wallet ✅ 16. Lifecycle (FundsHeld→Validated→Dispatched→Delivered→Settled + Adjusted) ✅
+17. Audit (orders/order_no HG-000123, adjustments, wallet_tx→order_id, holds) ✅
+
+## Decisions log (see PRD.md)
+Local Postgres (free) · Better Auth (self-hosted) · R2 photos · local Docker · bright palette · one phase at a time.
+
 Build order: 0 → 1 → 2 → 3+4 → 5 → 6 → 7 → 8 → 9.
