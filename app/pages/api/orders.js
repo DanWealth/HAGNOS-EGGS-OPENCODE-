@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
     if (lagosDay !== 1) return res.status(403).json({ error: "window-closed", message: "Orders open Monday only." });
   }
-  const { size_ordered, crates, zone } = req.body || {};
+  const { size_ordered, crates, zone, address } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });
   if (!crates || crates < 10) return res.status(400).json({ error: "mov-min-10" });
   const z = zone === "island" ? "island" : "mainland";
@@ -45,8 +45,8 @@ export default async function handler(req, res) {
   const no = await query("SELECT nextval('order_no_seq') AS n");
   const orderNo = "HG-" + String(no.rows[0].n).padStart(6, "0");
   await query(
-    "INSERT INTO orders (id, order_no, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'FundsHeld',$10)",
-    [id, orderNo, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z]
+    "INSERT INTO orders (id, order_no, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone, address) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'FundsHeld',$10,$11)",
+    [id, orderNo, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z, address || null]
   );
   await query("INSERT INTO payment_holds (id, order_id, amount, status) VALUES ($1,$2,$3,'held')", [randomUUID(), id, total]);
   if (walletApplied > 0) {

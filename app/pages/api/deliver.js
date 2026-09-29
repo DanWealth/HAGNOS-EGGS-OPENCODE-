@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 // Delivery confirm + breakage credit. cracked_eggs * (unit/30).
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
-  const { order_id, cracked_eggs = 0, empty_crates = 0 } = req.body || {};
+  const { order_id, cracked_eggs = 0, empty_crates = 0, photo_url = null } = req.body || {};
   const o = await query("SELECT * FROM orders WHERE id=$1", [order_id]);
   if (!o.rows.length) return res.status(404).json({ error: "no-order" });
   const order = o.rows[0];
@@ -13,8 +13,8 @@ export default async function handler(req, res) {
   const credit = Math.round((Number(cracked_eggs) * unit) / 30);
   await query("UPDATE orders SET status='Delivered' WHERE id=$1", [order_id]);
   await query(
-    "INSERT INTO delivery_stops (id, order_id, empty_crates_collected, cracked_eggs) VALUES ($1,$2,$3,$4)",
-    [randomUUID(), order_id, empty_crates, cracked_eggs]
+    "INSERT INTO delivery_stops (id, order_id, empty_crates_collected, cracked_eggs, photo_url) VALUES ($1,$2,$3,$4,$5)",
+    [randomUUID(), order_id, empty_crates, cracked_eggs, photo_url]
   );
   if (credit > 0) {
     await query("INSERT INTO wallet_tx (id, user_id, amount, reason, order_id) VALUES ($1,$2,$3,'breakage',$4)", [randomUUID(), order.user_id, credit, order_id]);
