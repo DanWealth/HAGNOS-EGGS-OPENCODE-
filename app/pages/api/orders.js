@@ -18,6 +18,7 @@ export default async function handler(req, res) {
 
   const pw = await query("SELECT * FROM price_weeks ORDER BY week_start DESC LIMIT 1");
   if (!pw.rows.length) return res.status(400).json({ error: "no-price-week" });
+  if (pw.rows[0].locked_at) return res.status(403).json({ error: "prices-locked", message: "Week is locked. Wait for next Monday." });
   const P = pw.rows[0];
 
   let u = await query("SELECT * FROM users LIMIT 1");

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 
 export default function Orders() {
   const [orders, setOrders] = useState(null);
+  const [notes, setNotes] = useState([]);
   useEffect(() => {
     fetch("/api/orders-list").then((r) => r.json()).then((j) => setOrders(j.orders || []));
+    fetch("/api/notifications").then((r) => r.json()).then((j) => setNotes(j.notices || []));
   }, []);
   if (!orders) return <p style={{ padding: 20 }}>Loading your orders…</p>;
   return (
@@ -16,6 +18,13 @@ export default function Orders() {
         </div>
       ))}
       {orders.length === 0 && <p>No orders yet. Order on Monday.</p>}
+      <h2>Delivery updates</h2>
+      {notes.map((n, i) => (
+        <div key={i} style={{ background: "#FFF6BF", border: "2px solid #0A0A0A", borderRadius: 8, padding: 10, marginBottom: 8 }}>
+          <b>{n.kind}</b> — {n.message}<br /><small>{String(n.created_at).slice(0, 10)}</small>
+        </div>
+      ))}
+      {notes.length === 0 && <p>No updates yet.</p>}
     </div>
   );
 }

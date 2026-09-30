@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 export default function Admin() {
   const [data, setData] = useState(null);
   const [msg, setMsg] = useState("");
-  const load = () => fetch("/api/orders-list").then((r) => r.json()).then(setData);
+  const [stats, setStats] = useState(null);
+  const load = () => {
+    fetch("/api/orders-list").then((r) => r.json()).then(setData);
+    fetch("/api/metrics").then((r) => r.json()).then(setStats).catch(() => {});
+  };
   useEffect(load, []);
 
   async function post(path, body) {
@@ -18,6 +22,7 @@ export default function Admin() {
   return (
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>
       <h1>Admin — Monday holds: ₦{Number(data.totalHeld).toLocaleString()}</h1>
+      {stats && <p><b>{stats.orders} orders</b> • fulfillment {stats.fulfillmentPct}% (target {stats.targetFulfillmentPct}%) • breakage {stats.breakagePct}% (target &lt;{stats.targetBreakagePct}%) • wallet liability ₦{Number(stats.walletLiability).toLocaleString()}</p>}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button onClick={() => post("/api/routes")} style={b}>Build routes</button>
         <button onClick={() => post("/api/cutoff")} style={b}>Close week (Mon 23:59)</button>
