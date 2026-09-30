@@ -8,7 +8,7 @@ export default function Admin() {
     fetch("/api/orders-list").then((r) => r.json()).then(setData);
     fetch("/api/metrics").then((r) => r.json()).then(setStats).catch(() => {});
   };
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   async function post(path, body) {
     setMsg("Working…");

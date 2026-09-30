@@ -5,7 +5,7 @@ export default function Prices() {
   const [f, setF] = useState({ week_start: "", large_price: 4500, medium_price: 4000, pullet_price: 3200 });
   const [msg, setMsg] = useState("");
   const load = () => fetch("/api/price-weeks").then((r) => r.json()).then((j) => setWeeks(j.weeks || []));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
   const inp = { padding: 10, border: "2px solid #0A0A0A", borderRadius: 8, fontSize: 15, width: "100%", marginTop: 4 };
 
   async function save() {
