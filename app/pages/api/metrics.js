@@ -10,6 +10,9 @@ export default async function handler(req, res) {
   const total = Number(o.rows[0].n), done = Number(d.rows[0].n);
   const cracked = Number(eggs.rows[0].cracked);
   const deliveredCrates = await query("SELECT COALESCE(SUM(crates),0) AS c FROM orders WHERE status IN ('Delivered','Settled','Adjusted')");
+  const demand = await query(
+    "SELECT size_ordered, COUNT(*) AS orders, COALESCE(SUM(crates),0) AS crates FROM orders WHERE status IN ('FundsHeld','Validated','Adjusted') GROUP BY size_ordered ORDER BY size_ordered"
+  );
   const breakagePct = deliveredCrates.rows[0].c > 0 ? (cracked / (Number(deliveredCrates.rows[0].c) * 30)) * 100 : 0;
   res.status(200).json({
     orders: total,
@@ -19,5 +22,6 @@ export default async function handler(req, res) {
     targetBreakagePct: 2,
     walletLiability: Number(w.rows[0].liability),
     crates: Number(o.rows[0].crates),
+    farmDemand: demand.rows.map((d) => ({ size: d.size_ordered, orders: Number(d.orders), crates: Number(d.crates) })),
   });
 }

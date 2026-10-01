@@ -23,6 +23,7 @@ export default function Admin() {
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>
       <h1>Admin — Monday holds: ₦{Number(data.totalHeld).toLocaleString()}</h1>
       {stats && <p><b>{stats.orders} orders</b> • fulfillment {stats.fulfillmentPct}% (target {stats.targetFulfillmentPct}%) • breakage {stats.breakagePct}% (target &lt;{stats.targetBreakagePct}%) • wallet liability ₦{Number(stats.walletLiability).toLocaleString()}</p>}
+      {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ")}</p>}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button onClick={() => post("/api/routes")} style={b}>Build routes</button>
         <button onClick={() => post("/api/cutoff")} style={b}>Close week (Mon 23:59)</button>
