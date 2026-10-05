@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     return res.status(201).json({ grouped: out.length, truckCap: TRUCK_CAP });
   }
   const r = await query(
-    "SELECT o.id, o.size_ordered, o.crates, o.status, o.zone FROM orders o ORDER BY o.zone, o.created_at DESC LIMIT 50"
+    "SELECT o.id, o.order_no, o.size_ordered, o.crates, o.status, o.zone, o.address FROM orders o ORDER BY o.zone, o.created_at DESC LIMIT 50"
   );
   res.status(200).json({ stops: r.rows, truckCap: TRUCK_CAP });
 }
