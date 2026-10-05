@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
     if (lagosDay !== 1) return res.status(403).json({ error: "window-closed", message: "Orders open Monday only." });
   }
-  const { size_ordered, crates, zone, address } = req.body || {};
+  const { size_ordered, crates, zone, address, email } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });
   if (!crates || crates < 10) return res.status(400).json({ error: "mov-min-10" });
   const z = zone === "island" ? "island" : "mainland";
@@ -21,14 +21,17 @@ export default async function handler(req, res) {
   if (pw.rows[0].locked_at) return res.status(403).json({ error: "prices-locked", message: "Week is locked. Wait for next Monday." });
   const P = pw.rows[0];
 
-  let u = await query("SELECT * FROM users LIMIT 1");
+  let u = email
+    ? await query("SELECT * FROM users WHERE LOWER(email)=LOWER($1)", [email])
+    : await query("SELECT * FROM users LIMIT 1");
   let user = u.rows[0];
-  if (!user) {
+  if (!user && !email) {
     const id = randomUUID();
     await query("INSERT INTO users (id, phone, role) VALUES ($1,$2,$3)", [id, "08030000000", "buyer_commercial"]);
     await query("INSERT INTO wallet_accounts (user_id, balance) VALUES ($1,0) ON CONFLICT DO NOTHING", [id]);
     user = { id, role: "buyer_commercial", first_order_done: false };
   }
+  if (!user) return res.status(400).json({ error: "unknown-buyer", message: "Register with your email first." });
 
   const unit = UNIT[size_ordered];
   const gross = unit * crates;

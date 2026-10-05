@@ -1,66 +1,35 @@
-import { useState } from "react";
-import { theme as C, prices } from "../lib/theme";
+import { theme as C } from "../lib/theme";
 
-export default function Home() {
-  const [size, setSize] = useState("Large");
-  const [crates, setCrates] = useState(10);
-  const ok = crates >= 10;
-  const total = crates * prices[size];
-  const [msg, setMsg] = useState("");
-  const [address, setAddress] = useState("");
-
-  async function lockOrder() {
-    setMsg("Locking…");
-    const r = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ size_ordered: size, crates, zone: "mainland", address }),
-    });
-    const j = await r.json();
-    setMsg(r.ok ? `Locked! Held ₦${Number(j.total_held).toLocaleString()} (${j.status})` : `Failed: ${j.error}`);
-  }
-
+export default function Landing() {
+  const card = { background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 18, boxShadow: `4px 4px 0 ${C.ink}` };
   return (
     <div style={{ fontFamily: "Inter, system-ui", background: C.mist, minHeight: "100vh", color: C.ink }}>
-      <div style={{ background: C.ink, color: "#fff", padding: 20, borderBottom: `6px solid ${C.volt}` }}>
-        <h1 style={{ margin: 0 }}>Hagnos Eggs <span style={{ color: C.sun }}>— Monday Order</span></h1>
-        <p>Prices locked • Closes Mon 11:59 PM • <a style={{ color: C.sun }} href="/orders">My orders</a> • <a style={{ color: C.sun }} href="/wallet">Wallet</a> • <a style={{ color: C.sun }} href="/login">Sign in</a></p>
+      <div style={{ background: C.ink, color: "#fff", padding: "14px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `6px solid ${C.volt}` }}>
+        <b style={{ fontSize: 20 }}>Hagnos <span style={{ color: C.sun }}>Eggs</span></b>
+        <a href="/order" style={{ background: C.sun, color: C.ink, fontWeight: 800, padding: "10px 18px", borderRadius: 8, textDecoration: "none", border: `2px solid #fff` }}>Place your order</a>
       </div>
-      <div style={{ maxWidth: 640, margin: "20px auto", display: "grid", gap: 16, padding: 12 }}>
-        <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
-          <h3>1. Pick size</h3>
-          {["Large", "Medium", "Pullet"].map((s) => (
-            <button key={s} onClick={() => setSize(s)}
-              style={{ marginRight: 8, padding: "10px 16px", fontWeight: 800, borderRadius: 8,
-                border: `2px solid ${C.ink}`, background: size === s ? C.sun : "#fff" }}>
-              {s} ₦{prices[s].toLocaleString()}
-            </button>
-          ))}
+
+      <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 20px", display: "grid", gap: 28 }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ display: "inline-block", background: C.volt, border: `2px solid ${C.ink}`, borderRadius: 20, padding: "6px 16px", fontWeight: 800, margin: 0 }}>Ibadan–Ogun farms → Lagos • Every Tuesday</p>
+          <h1 style={{ fontSize: 44, margin: "16px 0 8px" }}>Fresh eggs for your business.<br />Locked prices. <span style={{ background: C.sun, padding: "0 10px", border: `2px solid ${C.ink}`, borderRadius: 8 }}>Tuesday delivery.</span></h1>
+          <p style={{ fontSize: 19, maxWidth: 620, margin: "0 auto" }}>Bakeries, supermarkets, hotels and neighborhood hubs order on Monday — we aggregate demand, buy straight from the farm, and roll any savings into your wallet.</p>
+          <a href="/order" style={{ display: "inline-block", marginTop: 20, background: C.volt, color: C.ink, fontWeight: 900, fontSize: 20, padding: "16px 36px", borderRadius: 12, textDecoration: "none", border: `2px solid ${C.ink}`, boxShadow: `4px 4px 0 ${C.ink}` }}>Place your order →</a>
+          <p><small>Minimum 10 crates • Closes Monday 11:59 PM</small></p>
         </div>
-        <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
-          <h3>2. Crates (min 10)</h3>
-          <button onClick={() => setCrates(Math.max(0, crates - 1))} style={btn}>−</button>
-          <b style={{ margin: "0 12px", fontSize: 22 }}>{crates}</b>
-          <button onClick={() => setCrates(crates + 1)} style={btn}>+</button>
-          <p style={{ fontWeight: 800, background: ok ? C.volt : C.rose, display: "inline-block", padding: "4px 12px", borderRadius: 20, border: `2px solid ${C.ink}` }}>
-            {ok ? "✓ MOV met" : "Need at least 10 crates"}
-          </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 12 }}>
+          <div style={card}><h3>🔒 Locked Monday prices</h3><p>Large, Medium, Pullet — set Sunday night, honored all week.</p></div>
+          <div style={card}><h3>💰 Wallet rollover</h3><p>Downgrades and breakage come back as credit on your next order.</p></div>
+          <div style={card}><h3>🚚 Tuesday drops + crate swap</h3><p>Full crates in, empties out. First order includes crates.</p></div>
         </div>
-        <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 16 }}>
-          <h3 style={{ color: C.sun }}>Total held: ₦{total.toLocaleString()}</h3>
-          <p>Wallet applies first on checkout. First order adds crate fee ₦1,500/crate.</p>
-          <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (e.g. 12 Allen Ave, Ikeja)"
-            style={{ width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.sun}`, fontSize: 15, marginBottom: 8 }} />
-          <button disabled={!ok} onClick={lockOrder} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: ok ? C.volt : "#999" }}>
-            Lock order
-          </button>
-          {msg && <p style={{ color: C.sun }}>{msg}</p>}
-        </div>
-        <div style={{ background: "#FFF6BF", border: `2px solid ${C.ink}`, borderLeft: `8px solid ${C.tang}`, borderRadius: 8, padding: 12 }}>
-          Have <b>{crates} clean, empty crates</b> ready for swap on Tuesday.
+
+        <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 24 }}>
+          <h2 style={{ color: C.sun, marginTop: 0 }}>How a week runs</h2>
+          <p><b>Sunday night</b> — Admin sets prices &nbsp;→&nbsp; <b>Monday</b> — you order, funds held &nbsp;→&nbsp; <b>Tuesday AM</b> — farm paid, truck rolls &nbsp;→&nbsp; <b>Tuesday PM</b> — delivery + crate swap &nbsp;→&nbsp; <b>Night</b> — funds released, credits to wallet.</p>
+          <a href="/order" style={{ display: "inline-block", background: C.sun, color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Start Monday's order</a>
         </div>
       </div>
     </div>
   );
 }
-const btn = { width: 44, height: 44, borderRadius: "50%", border: "2px solid #0A0A0A", background: "#00E676", fontSize: 22, fontWeight: 900 };
