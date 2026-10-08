@@ -62,6 +62,6 @@ export default async function handler(req, res) {
     "INSERT INTO crate_ledger (user_id, issued, returned) VALUES ($1,$2,0) ON CONFLICT (user_id) DO UPDATE SET issued = crate_ledger.issued + $2",
     [user.id, crates]
   );
-  await notify(user.id, "order_locked", `Locked ${crates}x ${size_ordered} (${z}). Held N${total}, wallet -N${walletApplied}.`);
+  await notify(user.id, "order_locked", `Order ${orderNo} placed: ${crates}x ${size_ordered} (${z}). Payment due ₦${total.toLocaleString("en-NG")}; wallet applied ₦${walletApplied.toLocaleString("en-NG")}.`);
   res.status(201).json({ id, order_no: orderNo, total_held: total, wallet_applied: walletApplied, status: "FundsHeld", breakdown: { gross, discount, fee, crateFee } });
 }

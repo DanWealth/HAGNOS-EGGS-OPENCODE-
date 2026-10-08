@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
 
   web:
     image: node:20
@@ -20,13 +21,11 @@ services:
       - "3000:3000"
     volumes:
       - ./app:/app
+    env_file:
+      - ./app/.env
     environment:
       DATABASE_URL: postgres://hagnos:hagnos@db:5432/hagnos_eggs
-      BETTER_AUTH_SECRET: change-me
-      R2_ENDPOINT: ${R2_ENDPOINT}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
-      R2_BUCKET: ${R2_BUCKET}
+      BETTER_AUTH_URL: http://localhost:3000
     depends_on:
       - db
 

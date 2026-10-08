@@ -1,0 +1,6 @@
+---
+description: After every input, host Hagnos Eggs live on this machine
+alwaysApply: true
+---
+
+After every user input that changes this app, start or keep Docker Compose running so http://localhost:3000 is live. Verify GET /api/health. Use live Paystack/Termii/Gemini when keys exist in app/.env — do not treat local-hold as the goal. Never deploy to Vercel. Never commit app/.env.

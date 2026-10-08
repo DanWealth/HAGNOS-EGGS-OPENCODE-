@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { theme as C, prices } from "../lib/theme";
 
 // Studio: email gate -> known buyers enter, new buyers register, then order.
@@ -11,9 +11,49 @@ export default function Order() {
   const [crates, setCrates] = useState(10);
   const [address, setAddress] = useState("");
   const [hist, setHist] = useState([]);
+  const [paymentOrder, setPaymentOrder] = useState(null);
+  const [paying, setPaying] = useState(false);
   const ok = crates >= 10;
   const total = crates * prices[size];
   const input = { width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 15, marginTop: 6 };
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (!ref) return;
+    setMsg("Confirming your payment…");
+    fetch(`/api/pay?ref=${encodeURIComponent(ref)}`)
+      .then(async (r) => ({ ok: r.ok, body: await r.json() }))
+      .then(({ ok, body }) => setMsg(ok ? `Payment confirmed for ${body.order_no || "your order"}.` : `Payment not confirmed: ${body.error || body.status || "please contact support"}.`))
+      .catch(() => setMsg("We could not confirm payment just now. Refresh this page to try again."));
+  }, []);
+
+  async function startPayment(orderId) {
+    setPaying(true);
+    try {
+      const r = await fetch("/api/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId, email: buyer.email }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "payment-setup-failed");
+      if (j.authorization_url && j.authorization_url.startsWith("https://checkout.paystack.com/")) {
+        window.location.assign(j.authorization_url);
+        return;
+      }
+      if (j.mode === "local-hold") {
+        setPaymentOrder(null);
+        setMsg("Order saved locally. No payment was taken. Add Paystack credentials to enable checkout. Amount due ₦" + Number(j.total_held).toLocaleString("en-NG") + ".");
+        return;
+      }
+      if (j.mode === "wallet" || j.status === "paid") setPaymentOrder(null);
+      setMsg(j.status === "paid" ? "This order is already paid." : "Order placed.");
+    } catch (error) {
+      setMsg(`Order placed, but payment could not start (${error.message}). Use Retry payment below.`);
+    } finally {
+      setPaying(false);
+    }
+  }
 
   async function findBuyer() {
     setMsg("Checking…");
@@ -42,14 +82,26 @@ export default function Order() {
   }
 
   async function lockOrder() {
+    setPaying(true);
     setMsg("Locking…");
-    const r = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ size_ordered: size, crates, zone: "mainland", address, email: buyer.email }),
-    });
-    const j = await r.json();
-    setMsg(r.ok ? `Locked ${j.order_no || ""}! Held ₦${Number(j.total_held).toLocaleString()} (wallet −₦${Number(j.wallet_applied || 0).toLocaleString()})` : `Failed: ${j.error || j.message}`);
+    try {
+      const r = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ size_ordered: size, crates, zone: "mainland", address, email: buyer.email }),
+      });
+      const j = await r.json();
+      if (!r.ok) {
+        setMsg(`Failed: ${j.error || j.message}`);
+        return;
+      }
+      setPaymentOrder({ id: j.id, orderNo: j.order_no, amount: Number(j.total_held) });
+      setMsg(`Order ${j.order_no || ""} placed. Review the final amount, then continue to payment.`);
+    } catch {
+      setMsg("We could not place the order. Please try again.");
+    } finally {
+      setPaying(false);
+    }
   }
 
   return (
@@ -97,7 +149,12 @@ export default function Order() {
               <h3 style={{ color: C.sun }}>Total: ₦{total.toLocaleString()}</h3>
               <p>Wallet applies first. First order adds crate fee ₦1,500/crate.</p>
               <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (e.g. 12 Allen Ave, Ikeja)" style={{ width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.sun}`, fontSize: 15, marginBottom: 8 }} />
-              <button disabled={!ok} onClick={lockOrder} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: ok ? C.volt : "#999" }}>Lock order</button>
+              <button disabled={!ok || paying || !!paymentOrder} onClick={lockOrder} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: ok ? C.volt : "#999" }}>{paying ? "Saving order…" : "Place order"}</button>
+              {paymentOrder && <div style={{ marginTop: 12, padding: 12, background: "#fff", color: C.ink, borderRadius: 8 }}>
+                <b>Order {paymentOrder.orderNo}: ₦{paymentOrder.amount.toLocaleString("en-NG")} due</b>
+                <p>Paystack checkout charges this amount immediately when you authorize payment.</p>
+                <button disabled={paying} onClick={() => startPayment(paymentOrder.id)} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>{paying ? "Opening checkout…" : "Continue to payment"}</button>
+              </div>}
               {msg && <p style={{ color: C.sun }}>{msg}</p>}
             </div>
             <div style={{ background: "#FFF6BF", border: `2px solid ${C.ink}`, borderLeft: `8px solid ${C.tang}`, borderRadius: 8, padding: 12 }}>

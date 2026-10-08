@@ -2,12 +2,15 @@
 
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
+  name TEXT,
   phone TEXT UNIQUE,
   email TEXT UNIQUE,
   role TEXT NOT NULL, -- buyer_commercial | hub_operator | admin | driver
   first_order_done BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE SEQUENCE order_no_seq START WITH 100;
 
 CREATE TABLE price_weeks (
   id TEXT PRIMARY KEY,
@@ -24,6 +27,7 @@ CREATE TABLE price_weeks (
 
 CREATE TABLE orders (
   id TEXT PRIMARY KEY,
+  order_no TEXT UNIQUE,
   user_id TEXT REFERENCES users(id),
   price_week_id TEXT REFERENCES price_weeks(id),
   size_ordered TEXT NOT NULL, -- Large | Medium | Pullet
@@ -34,6 +38,7 @@ CREATE TABLE orders (
   wallet_applied INTEGER DEFAULT 0,
   status TEXT DEFAULT 'FundsHeld', -- FundsHeld | Validated | Dispatched | Delivered | Settled | Adjusted | Failed | Cancelled
   zone TEXT, -- mainland | island
+  address TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -56,6 +61,7 @@ CREATE TABLE wallet_tx (
   user_id TEXT REFERENCES users(id),
   amount INTEGER NOT NULL, -- +credit | -debit
   reason TEXT NOT NULL, -- downgrade | breakage | order_apply
+  order_id TEXT REFERENCES orders(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -88,5 +94,16 @@ CREATE TABLE payment_holds (
   order_id TEXT REFERENCES orders(id),
   gateway_ref TEXT,
   amount INTEGER NOT NULL,
-  status TEXT DEFAULT 'held' -- held | captured | released | failed
+  status TEXT DEFAULT 'held' -- held | pending | captured | released | failed
 );
+
+CREATE TABLE notifications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id),
+  kind TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX payment_holds_gateway_ref_unique ON payment_holds(gateway_ref) WHERE gateway_ref IS NOT NULL;
+CREATE UNIQUE INDEX payment_holds_order_id_unique ON payment_holds(order_id);
