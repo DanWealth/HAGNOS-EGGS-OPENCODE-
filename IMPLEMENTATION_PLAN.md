@@ -94,19 +94,19 @@ Enforce MOV, cutoff, size enum, price immutability after lock server-side.
 - Phase 0 CLOSED (`docs/PHASE_0_LOCK.md`): Paystack plan, MOV 10, Mon 23:59, wallet rules, fees (₦1,500 crate, Mainland ₦2,500 / Island ₦4,000, 5% hub discount).
 - Phase 1 DONE: bright tokens (`design-system/tokens.json`, volt/sun/tang/sky/grape/rose), `design.html` preview, wired into app via `app/lib/theme.js`.
 - Phase 2 DONE (`docs/PHASE_2_ARCHITECTURE.md`, `docker-compose.yml`, `db/schema.sql` + `db/auth-schema.sql`): Next.js + local Postgres (Docker) + Better Auth 1.2.12 + Cloudflare R2. No Vercel, no Supabase/Neon.
-- Phase 3 DONE: login works (/login, 7-day session), prices API, order save with MOV guard.
-- Phase 4 DONE: Lock button saves orders, /admin holds view, /prices week management.
+- Phase 3 DONE: login (/login, 7-day session), landing (/) + email-gated studio (/order), prices API, order save with MOV + Monday + lock guards, order numbers (HG-000100+).
+- Phase 4 DONE: studio Lock button, /admin holds + stats + action buttons, /prices week management, buyer /orders history + updates, /wallet.
 - Phase 5 DONE: downgrade auto-offset, breakage credit, wallet-first checkout with fee breakdown.
-- Phase 6 DONE: zone routes (500 crates/truck), crate ledger (issued/returned/owed).
-- Phase 7 DONE (log mode): notices feed; SMS/WhatsApp via Termii needs keys.
-- Phase 8 LIVE: /api/metrics vs 95% / <2% targets.
-- Phase 9 NEXT: pilot (needs Paystack keys for real money).
-- App: http://localhost:3000 (home, /admin, /prices, /login). DB: localhost:5432, 14 tables.
+- Phase 6 DONE: zone routes (500 crates/truck), crate ledger, /driver run view, delivery addresses, R2 photo proof (/api/photos + photo_url).
+- Phase 7 DONE (ready-mode): notices feed + Termii SMS hook (activates with SMS_API_KEY); Paystack hold/capture ready (/api/pay verified local-hold, activates with PAYSTACK_SECRET_KEY).
+- Phase 8 LIVE: /api/metrics vs 95% / <2% targets + farm demand.
+- Phase 9 READY: `docs/PILOT_RUNBOOK.md`. Needs only the 2 keys (template: app/.env.example).
+- App: 8 pages (/, /order, /orders, /wallet, /admin, /prices, /login, /driver), all 200. DB: localhost:5432.
 
 ## PRD acceptance mapping (new .md PRD §25)
 1. Admin sets prices → /prices + POST /api/price-weeks ✅
 2. Monday-only orders → weekday guard in POST /api/orders (override: ORDER_WINDOW_OVERRIDE=true) ✅
-3. MOV 10 enforced ✅ 4. Size select ✅ 5. Gateway authorize → Paystack pending keys (hold stub records payment_holds) ⏳
+3. MOV 10 enforced ✅ 4. Size select ✅ 5. Gateway authorize → /api/pay ready (local-hold verified; live capture the moment PAYSTACK_SECRET_KEY is set) ⏳keys-only
 6. Hold until validation ✅ 7–9. Adjust + auto calc + wallet credit ✅ 10. Wallet-first checkout ✅
 11. First-time crate fee ✅ 12. Swap reminder ✅ 13–14. Admin orders/dispatch ✅
 15. Breakage→wallet ✅ 16. Lifecycle (FundsHeld→Validated→Dispatched→Delivered→Settled + Adjusted) ✅
