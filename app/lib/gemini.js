@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Farm-fresh visual studio (PRD visual experience). Uses Gemini image
 // generation + editing. Activates when GEMINI_API_KEY is set server-side.
 // Key must NEVER be pasted in chat or committed — local app/.env only.
-const MODEL = "gemini-2.0-flash-preview-image-generation";
+const MODEL = "gemini-2.5-flash-image";
 
 export function geminiReady() {
   return !!process.env.GEMINI_API_KEY;
