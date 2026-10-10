@@ -75,6 +75,8 @@ export default function Order() {
     const j = await r.json();
     if (j.exists) {
       setBuyer({ ...j.user, wallet: j.wallet });
+      if (j.user.zone === "island" || j.user.zone === "mainland") setZone(j.user.zone);
+      if (j.user.shop_address) setAddress(j.user.shop_address);
       setMsg(`Welcome back, ${j.user.name || j.user.email}!`);
       const h = await fetch("/api/orders-list?email=" + encodeURIComponent(email)).then((x) => x.json());
       setHist((h.orders || []).slice(0, 10));
@@ -91,6 +93,8 @@ export default function Order() {
     if (r.ok) {
       const g = await fetch(`/api/account?email=${encodeURIComponent(email)}`).then((x) => x.json());
       setBuyer({ ...g.user, wallet: g.wallet || 0 });
+      if (g.user?.zone === "island" || g.user?.zone === "mainland") setZone(g.user.zone);
+      if (g.user?.shop_address) setAddress(g.user.shop_address);
       setMsg(`Studio open — welcome, ${reg.name}!`);
     } else setMsg(`Failed: ${j.error}`);
   }

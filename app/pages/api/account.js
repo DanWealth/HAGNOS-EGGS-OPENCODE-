@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: "email required" });
-    const r = await query("SELECT id, email, name, phone, role, first_order_done FROM users WHERE LOWER(email)=LOWER($1)", [email]);
+    const r = await query("SELECT id, email, name, phone, role, first_order_done, shop_address, zone FROM users WHERE LOWER(email)=LOWER($1)", [email]);
     if (!r.rows.length) return res.status(200).json({ exists: false });
     const w = await query("SELECT balance FROM wallet_accounts WHERE user_id=$1", [r.rows[0].id]);
     return res.status(200).json({ exists: true, user: r.rows[0], wallet: Number(w.rows[0]?.balance || 0) });
