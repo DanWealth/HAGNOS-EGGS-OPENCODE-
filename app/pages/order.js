@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { theme as C, prices } from "../lib/theme";
+import { theme as C, prices as fallbackPrices } from "../lib/theme";
 
 // Studio: email gate -> known buyers enter, new buyers register, then order.
 function mondayOpen() {
@@ -16,6 +16,12 @@ export default function Order() {
   const [hist, setHist] = useState([]);
   const [paymentOrder, setPaymentOrder] = useState(null);
   const [paying, setPaying] = useState(false);
+  const [prices, setPrices] = useState(fallbackPrices);
+  useEffect(() => {
+    fetch("/api/prices").then((r) => r.json()).then((w) => {
+      if (w.large_price) setPrices({ Large: +w.large_price, Medium: +w.medium_price, Pullet: +w.pullet_price });
+    }).catch(() => {});
+  }, []);
   const ok = crates >= 10;
   const total = crates * prices[size];
   const input = { width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 15, marginTop: 6 };
