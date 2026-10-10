@@ -1,14 +1,17 @@
 # Phase 9 — Pilot Runbook (2 Tuesdays, 1 farm, 5–10 buyers)
 
-## Sunday night (Admin)
-1. Open /prices, set next Monday's Large / Medium / Pullet prices.
-2. Freeze prices — no edits after Monday 00:00.
+## Wednesday morning (Admin)
+1. Open /prices, set Large / Medium / Pullet prices. They lock all week — advertise it.
+2. Announce: ordering open Wed–Mon, Tuesday delivery-only.
 
-## Monday (Buyers)
+## Wednesday–Monday (Buyers)
 1. Buyers open http://localhost:3000, pick size + crates (min 10) + address.
 2. Wallet applies first, remainder held. Admin watches /admin holds total.
-3. 18:00: send cutoff reminder (in-app notice and Termii SMS when configured).
-4. 23:59: POST /api/cutoff (locks week, opens next).
+3. Monday 18:00: send cutoff reminder (in-app notice and Termii SMS when configured).
+4. Monday 23:59: POST /api/cutoff (locks week, opens next).
+
+## Sunday (Admin review)
+1. Check farm-gate moves. Normally reconfirm same prices; change only if the move is big — early orders keep their locked price.
 
 ## Tuesday morning (Admin)
 1. Check /admin farm demand (crates per size). Pay farm.
@@ -24,7 +27,7 @@
 2. Wallet credits roll to next Monday automatically.
 
 ## Rollback
-- Wrong prices? POST /api/price-weeks again before Monday 00:00.
+- Wrong prices? POST /api/price-weeks again before the week locks for new checkouts (early orders keep their price).
 - Bad order? Cancel in DB (status='Cancelled') before cutoff; hold released at cutoff.
 - App down? `docker compose up -d` restarts both boxes. Data lives in pgdata volume.
 - Existing database? Apply `db/migrations/001_payment_notifications.sql` once with `docker compose exec -T db psql -U hagnos -d hagnos_eggs -f /docker-entrypoint-initdb.d/migrations/001_payment_notifications.sql`.

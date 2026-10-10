@@ -6,10 +6,10 @@ const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
-  // PRD §6.2 / criterion 2: orders only on Monday (Africa/Lagos). Override for tests.
+  // PRD: orders Wed–Mon (Africa/Lagos); Tuesday is delivery-only. Override for tests.
   if (process.env.ORDER_WINDOW_OVERRIDE !== "true") {
     const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
-    if (lagosDay !== 1) return res.status(403).json({ error: "window-closed", message: "Orders open Monday only." });
+    if (lagosDay === 2) return res.status(403).json({ error: "window-closed", message: "Tuesday is delivery day. Orders open Wed–Mon." });
   }
   const { size_ordered, crates, zone, address, email } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });

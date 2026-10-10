@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { theme as C, prices as fallbackPrices } from "../lib/theme";
 
 // Studio: email gate -> known buyers enter, new buyers register, then order.
-function mondayOpen() {
-  return new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay() === 1;
+function windowOpen() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay() !== 2;
 }
 export default function Order() {
   const [email, setEmail] = useState("");
@@ -127,7 +127,7 @@ export default function Order() {
     <div style={{ fontFamily: "Inter, system-ui", background: C.mist, minHeight: "100vh", color: C.ink }}>
       <div style={{ background: C.ink, color: "#fff", padding: 20, borderBottom: `6px solid ${C.volt}` }}>
         <h1 style={{ margin: 0 }}>Your <span style={{ color: C.sun }}>Studio</span></h1>
-        <p>{mondayOpen() ? "Ordering open — closes Mon 11:59 PM" : "Window closed — opens Monday"} • Wallet applies first</p>
+        <p>{windowOpen() ? "Ordering open — closes Mon 11:59 PM" : "Delivery day — window reopens Wednesday"} • Wallet applies first • Prices locked all week</p>
       </div>
       <div style={{ maxWidth: 640, margin: "20px auto", display: "grid", gap: 16, padding: 12 }}>
         {!buyer && (

@@ -198,7 +198,7 @@ The Administrator must be able to configure the weekly selling price for each eg
 
 * Prices must be configurable by the Administrator.
 
-* Prices must be locked once the Monday ordering window opens.
+* Prices must be locked once the Wednesday ordering window opens, and stay locked all week.
 
 * Buyers must see the applicable prices before placing an order.
 
@@ -210,7 +210,7 @@ The Administrator must be able to configure the weekly selling price for each eg
 
 ## **6.1 Order Opening**
 
-The platform must open for orders every Monday morning.
+The platform must open for orders every Wednesday morning.
 
 The Administrator's configured prices become the active prices for the ordering period.
 
@@ -581,7 +581,7 @@ The Administrator dashboard should provide visibility and control over:
 | Rule | Requirement |
 | ----- | ----- |
 | Minimum Order | 10 crates per delivery destination |
-| Ordering Day | Monday |
+| Ordering Window | Wednesday – Monday (Tuesday is delivery-only, no orders) |
 | Order Cut-off | Monday, 11:59 PM |
 | Primary Delivery Day | Tuesday |
 | Egg Sizes | Large, Medium, Pullet |
@@ -590,7 +590,7 @@ The Administrator dashboard should provide visibility and control over:
 | Size Downgrade | Price difference credited to wallet |
 | Breakage | Applicable credit sent to wallet |
 | Wallet Usage | Primary payment method for next Monday order |
-| Price Control | Administrator |
+| Price Control | Administrator (sets Wednesday morning, reviews Sunday; locked all week) |
 | Tuesday Execution | Farm payment \+ truck dispatch |
 
 ---
@@ -793,12 +793,15 @@ Applicable Credits Added to Wallet
 
 # **24\. Key User Journey — Administrator**
 
-Sunday Night  
+Wednesday Morning  
       ↓  
-Set Weekly Prices  
+Set Weekly Prices (locked all week)  
       ↓  
-Monday  
+Wednesday–Monday  
 Monitor Incoming Orders  
+      ↓  
+Sunday  
+Review Prices (change only if farm-gate moved; early orders keep their price)  
       ↓  
 11:59 PM  
 Ordering Window Closes  
@@ -1075,7 +1078,7 @@ The Administrator must be able to configure the weekly selling price for each eg
 
 * Prices must be configurable by the Administrator.
 
-* Prices must be locked once the Monday ordering window opens.
+* Prices must be locked once the Wednesday ordering window opens, and stay locked all week.
 
 * Buyers must see the applicable prices before placing an order.
 
@@ -1087,7 +1090,7 @@ The Administrator must be able to configure the weekly selling price for each eg
 
 ## **6.1 Order Opening**
 
-The platform must open for orders every Monday morning.
+The platform must open for orders every Wednesday morning.
 
 The Administrator's configured prices become the active prices for the ordering period.
 
@@ -1458,7 +1461,7 @@ The Administrator dashboard should provide visibility and control over:
 | Rule | Requirement |
 | ----- | ----- |
 | Minimum Order | 10 crates per delivery destination |
-| Ordering Day | Monday |
+| Ordering Window | Wednesday – Monday (Tuesday is delivery-only, no orders) |
 | Order Cut-off | Monday, 11:59 PM |
 | Primary Delivery Day | Tuesday |
 | Egg Sizes | Large, Medium, Pullet |
@@ -1467,7 +1470,7 @@ The Administrator dashboard should provide visibility and control over:
 | Size Downgrade | Price difference credited to wallet |
 | Breakage | Applicable credit sent to wallet |
 | Wallet Usage | Primary payment method for next Monday order |
-| Price Control | Administrator |
+| Price Control | Administrator (sets Wednesday morning, reviews Sunday; locked all week) |
 | Tuesday Execution | Farm payment \+ truck dispatch |
 
 ---
@@ -1670,12 +1673,15 @@ Applicable Credits Added to Wallet
 
 # **24\. Key User Journey — Administrator**
 
-Sunday Night  
+Wednesday Morning  
       ↓  
-Set Weekly Prices  
+Set Weekly Prices (locked all week)  
       ↓  
-Monday  
+Wednesday–Monday  
 Monitor Incoming Orders  
+      ↓  
+Sunday  
+Review Prices (change only if farm-gate moved; early orders keep their price)  
       ↓  
 11:59 PM  
 Ordering Window Closes  
