@@ -106,6 +106,7 @@ export default function Order() {
       }
       setPaymentOrder({ id: j.id, orderNo: j.order_no, amount: Number(j.total_held) });
       setMsg(`Order ${j.order_no || ""} placed. Review the final amount, then continue to payment.`);
+      fetch("/api/orders-list?email=" + encodeURIComponent(buyer.email)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
     } catch {
       setMsg("We could not place the order. Please try again.");
     } finally {

@@ -7,7 +7,7 @@ export default function Orders() {
     const email = new URLSearchParams(window.location.search).get("email");
     const q = email ? `?email=${encodeURIComponent(email)}` : "";
     fetch("/api/orders-list" + q).then((r) => r.json()).then((j) => setOrders(j.orders || []));
-    fetch("/api/notifications").then((r) => r.json()).then((j) => setNotes(j.notices || []));
+    fetch("/api/notifications" + q).then((r) => r.json()).then((j) => setNotes((j.notices || []).slice(0, 5)));
   }, []);
   if (!orders) return <p style={{ padding: 20 }}>Loading your orders…</p>;
   return (
