@@ -5,6 +5,14 @@ import { query } from "../../lib/db";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const { order_id, action } = req.body || {};
+  if (action === "validate-all") {
+    const r = await query("UPDATE orders SET status='Validated' WHERE status='FundsHeld' RETURNING id");
+    return res.status(200).json({ status: "Validated", count: r.rows.length });
+  }
+  if (action === "dispatch-all") {
+    const r = await query("UPDATE orders SET status='Dispatched' WHERE status IN ('Validated','Adjusted') RETURNING id");
+    return res.status(200).json({ status: "Dispatched", count: r.rows.length });
+  }
   const o = await query("SELECT * FROM orders WHERE id=$1", [order_id]);
   if (!o.rows.length) return res.status(404).json({ error: "no-order" });
   const st = o.rows[0].status;

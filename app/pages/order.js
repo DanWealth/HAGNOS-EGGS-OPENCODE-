@@ -12,6 +12,7 @@ export default function Order() {
   const [msg, setMsg] = useState("");
   const [size, setSize] = useState("Large");
   const [crates, setCrates] = useState(10);
+  const [zone, setZone] = useState("mainland");
   const [address, setAddress] = useState("");
   const [hist, setHist] = useState([]);
   const [paymentOrder, setPaymentOrder] = useState(null);
@@ -97,7 +98,7 @@ export default function Order() {
       const r = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ size_ordered: size, crates, zone: "mainland", address, email: buyer.email }),
+        body: JSON.stringify({ size_ordered: size, crates, zone, address, email: buyer.email }),
       });
       const j = await r.json();
       if (!r.ok) {
@@ -146,6 +147,12 @@ export default function Order() {
               <h3>Pick size</h3>
               {["Large", "Medium", "Pullet"].map((s) => (
                 <button key={s} onClick={() => setSize(s)} style={{ marginRight: 8, padding: "10px 16px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: size === s ? C.sun : "#fff" }}>{s} ₦{prices[s].toLocaleString()}</button>
+              ))}
+            </div>
+            <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
+              <h3>Delivery zone</h3>
+              {(["mainland", "island"]).map((zz) => (
+                <button key={zz} onClick={() => setZone(zz)} style={{ marginRight: 8, padding: "10px 16px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: zone === zz ? C.sky : "#fff" }}>{zz === "mainland" ? "Mainland ₦2,500" : "Island ₦4,000"}</button>
               ))}
             </div>
             <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>

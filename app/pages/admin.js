@@ -28,6 +28,8 @@ export default function Admin() {
       {stats && stats.byRole && <p><b>By buyer:</b> {stats.byRole.map((d) => `${d.role} ${d.crates} crates`).join(" • ")}</p>}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button onClick={() => post("/api/routes")} style={b}>Build routes</button>
+        <button onClick={() => post("/api/fulfill", { action: "validate-all" })} style={b}>Validate all</button>
+        <button onClick={() => post("/api/fulfill", { action: "dispatch-all" })} style={b}>Dispatch all</button>
         <button onClick={() => post("/api/cutoff")} style={b}>Close week (Mon 23:59)</button>
         <button onClick={() => post("/api/settle")} style={b}>Settle Tuesday night</button>
       </div>
