@@ -32,7 +32,7 @@ export default function Admin() {
       {msg && <p><b>{msg}</b></p>}
       {data.orders.map((o) => (
         <div key={o.id} style={{ border: "2px solid #0A0A0A", borderRadius: 8, padding: 10, marginBottom: 8 }}>
-          <b>{o.crates}× {o.size_ordered}</b> — ₦{Number(o.total_held).toLocaleString()} — {o.status} — {o.zone}
+          <b>{o.crates}× {o.size_ordered}</b> — ₦{Number(o.total_held).toLocaleString()} — {o.status} — {o.zone} — pay: {o.pay_status || "—"}
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <button onClick={() => post("/api/adjust", { order_id: o.id, new_size: "Medium" })} style={s}>↓ Medium</button>
             <button onClick={() => post("/api/adjust", { order_id: o.id, new_size: "Pullet" })} style={s}>↓ Pullet</button>
