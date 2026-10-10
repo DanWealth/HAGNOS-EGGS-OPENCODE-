@@ -1,5 +1,12 @@
 import { theme as C } from "../lib/theme";
 
+export function windowStatus() {
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+  if (now.getDay() === 1) return { open: true, text: "Ordering open now — closes 11:59 PM" };
+  const d = (8 - now.getDay()) % 7 || 7;
+  return { open: false, text: `Opens Monday${d === 1 ? " (tomorrow)" : ` in ${d} days`} • 10 crates min` };
+}
+
 export default function Landing() {
   const card = { background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 18, boxShadow: `4px 4px 0 ${C.ink}` };
   return (
@@ -15,7 +22,7 @@ export default function Landing() {
           <h1 style={{ fontSize: 44, margin: "16px 0 8px" }}>Fresh eggs for your business.<br />Locked prices. <span style={{ background: C.sun, padding: "0 10px", border: `2px solid ${C.ink}`, borderRadius: 8 }}>Tuesday delivery.</span></h1>
           <p style={{ fontSize: 19, maxWidth: 620, margin: "0 auto" }}>Bakeries, supermarkets, hotels and neighborhood hubs order on Monday — we aggregate demand, buy straight from the farm, and roll any savings into your wallet.</p>
           <a href="/order" style={{ display: "inline-block", marginTop: 20, background: C.volt, color: C.ink, fontWeight: 900, fontSize: 20, padding: "16px 36px", borderRadius: 12, textDecoration: "none", border: `2px solid ${C.ink}`, boxShadow: `4px 4px 0 ${C.ink}` }}>Place your order →</a>
-          <p><small>Minimum 10 crates • Closes Monday 11:59 PM • <a href="/visuals">See it fresh in the visual studio</a></small></p>
+          <p><small>Minimum 10 crates • {windowStatus().text} • <a href="/visuals">See it fresh in the visual studio</a></small></p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 12 }}>
