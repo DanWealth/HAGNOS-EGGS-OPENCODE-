@@ -91,6 +91,14 @@ export default function Order() {
     } else setMsg(`Failed: ${j.error}`);
   }
 
+  async function cancelOrder(orderId) {
+    setMsg("Cancelling…");
+    const r = await fetch("/api/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, email: buyer.email }) });
+    const j = await r.json();
+    setMsg(r.ok ? "Order cancelled. Hold released." : `Failed: ${j.error || j.message}`);
+    fetch("/api/orders-list?email=" + encodeURIComponent(buyer.email)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
+  }
+
   async function lockOrder() {
     setPaying(true);
     setMsg("Locking…");
@@ -180,7 +188,7 @@ export default function Order() {
             {hist.length > 0 && (
               <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
                 <h3>Recent orders</h3>
-                {hist.map((o) => (<p key={o.id}><b>{o.order_no || o.id.slice(0, 8)}</b> — {o.crates}× {o.size_ordered} — {o.status}</p>))}
+                {hist.map((o) => (<p key={o.id}><b>{o.order_no || o.id.slice(0, 8)}</b> — {o.crates}× {o.size_ordered} — {o.status} {o.status === "FundsHeld" && <button onClick={() => cancelOrder(o.id)} style={{ marginLeft: 8, padding: "4px 10px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.rose, color: "#fff" }}>Cancel</button>}</p>))}
               </div>
             )}
           </>
