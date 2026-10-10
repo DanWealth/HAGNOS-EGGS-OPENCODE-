@@ -4,7 +4,9 @@ export default function Orders() {
   const [orders, setOrders] = useState(null);
   const [notes, setNotes] = useState([]);
   useEffect(() => {
-    fetch("/api/orders-list").then((r) => r.json()).then((j) => setOrders(j.orders || []));
+    const email = new URLSearchParams(window.location.search).get("email");
+    const q = email ? `?email=${encodeURIComponent(email)}` : "";
+    fetch("/api/orders-list" + q).then((r) => r.json()).then((j) => setOrders(j.orders || []));
     fetch("/api/notifications").then((r) => r.json()).then((j) => setNotes(j.notices || []));
   }, []);
   if (!orders) return <p style={{ padding: 20 }}>Loading your orders…</p>;

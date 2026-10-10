@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 export default function Wallet() {
   const [w, setW] = useState(null);
   useEffect(() => {
-    fetch("/api/wallet").then((r) => r.json()).then(setW);
+    const email = new URLSearchParams(window.location.search).get("email");
+    fetch("/api/wallet" + (email ? `?email=${encodeURIComponent(email)}` : "")).then((r) => r.json()).then(setW);
   }, []);
   if (!w) return <p style={{ padding: 20 }}>Loading wallet…</p>;
   return (

@@ -71,8 +71,8 @@ export default function Order() {
     if (j.exists) {
       setBuyer({ ...j.user, wallet: j.wallet });
       setMsg(`Welcome back, ${j.user.name || j.user.email}!`);
-      const h = await fetch("/api/orders-list").then((x) => x.json());
-      setHist((h.orders || []).filter((o) => o.id && true).slice(0, 10));
+      const h = await fetch("/api/orders-list?email=" + encodeURIComponent(email)).then((x) => x.json());
+      setHist((h.orders || []).slice(0, 10));
     } else {
       setBuyer(null);
       setMsg("New here — tell us about your business.");
