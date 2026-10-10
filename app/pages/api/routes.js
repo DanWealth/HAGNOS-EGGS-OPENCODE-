@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 import { randomUUID } from "crypto";
 
 // Phase 6: group this week's open orders by zone into routes.
@@ -7,6 +8,7 @@ const TRUCK_CAP = 500;
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
+    if (!(await requireAdmin(req, res))) return;
     const pw = await query("SELECT id FROM price_weeks ORDER BY week_start DESC LIMIT 1");
     const weekId = pw.rows[0]?.id;
     await query("DELETE FROM routes WHERE price_week_id=$1", [weekId]);

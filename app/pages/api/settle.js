@@ -1,10 +1,12 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 import { paystackReady } from "../../lib/paystack";
 
 // Tuesday night: settle only delivered orders with a captured payment.
 // In local-hold mode, held rows retain the pilot's existing manual-settlement behavior.
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+  if (!(await requireAdmin(req, res))) return;
   const livePayments = paystackReady();
   const r = await query(
     `UPDATE orders o SET status='Settled'

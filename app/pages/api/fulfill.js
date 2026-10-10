@@ -1,9 +1,11 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 
 // Tuesday morning: validate supply for an order (FundsHeld -> Validated).
 // Tuesday dispatch: Validated/Adjusted -> Dispatched.
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+  if (!(await requireAdmin(req, res))) return;
   const { order_id, action } = req.body || {};
   if (action === "validate-all") {
     const r = await query("UPDATE orders SET status='Validated' WHERE status='FundsHeld' RETURNING id");

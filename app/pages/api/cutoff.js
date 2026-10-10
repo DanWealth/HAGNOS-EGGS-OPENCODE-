@@ -1,9 +1,11 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 import { randomUUID } from "crypto";
 
 // Monday 23:59 job (run manually or cron): lock week, open next with same prices.
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+  if (!(await requireAdmin(req, res))) return;
   const cur = await query("SELECT * FROM price_weeks ORDER BY week_start DESC LIMIT 1");
   if (!cur.rows.length) return res.status(400).json({ error: "no-price-week" });
   const c = cur.rows[0];

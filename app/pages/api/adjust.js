@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 import { notify } from "../../lib/notify";
 import { randomUUID } from "crypto";
 
@@ -7,6 +8,7 @@ const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
 // Admin downgrade only (MVP): e.g. Large -> Medium
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
+  if (!(await requireAdmin(req, res))) return;
   const { order_id, new_size } = req.body || {};
   if (!UNIT[new_size]) return res.status(400).json({ error: "bad-size" });
   const o = await query("SELECT * FROM orders WHERE id=$1", [order_id]);

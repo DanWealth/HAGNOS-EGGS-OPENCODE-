@@ -1,4 +1,5 @@
 import { query } from "../../lib/db";
+import { requireAdmin } from "../../lib/requireAdmin";
 import { randomUUID } from "crypto";
 
 // Admin sets next week's prices (PRD §5, criterion 1). Sunday-night action.
@@ -8,6 +9,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ weeks: r.rows });
   }
   if (req.method !== "POST") return res.status(405).end();
+  if (!(await requireAdmin(req, res))) return;
   const { week_start, large_price, medium_price, pullet_price, hub_discount_pct, mainland_fee, island_fee, crate_fee } = req.body || {};
   if (!week_start || !large_price || !medium_price || !pullet_price) return res.status(400).json({ error: "missing-prices" });
   const id = randomUUID();
