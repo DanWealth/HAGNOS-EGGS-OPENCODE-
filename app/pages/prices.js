@@ -25,7 +25,7 @@ export default function Prices() {
     <div style={{ maxWidth: 640, margin: "20px auto", padding: 20, fontFamily: "Inter, system-ui" }}>
       <h1>Weekly prices (Admin)</h1>
       <div style={{ background: "#fff", border: "2px solid #0A0A0A", borderRadius: 12, padding: 16, display: "grid", gap: 8 }}>
-        <label>Week start (Monday)<input style={inp} type="date" value={f.week_start} onChange={(e) => setF({ ...f, week_start: e.target.value })} /></label>
+        <label>Week start (Wednesday)<input style={inp} type="date" value={f.week_start} onChange={(e) => setF({ ...f, week_start: e.target.value })} /></label>
         <label>Large ₦<input style={inp} type="number" value={f.large_price} onChange={(e) => setF({ ...f, large_price: e.target.value })} /></label>
         <label>Medium ₦<input style={inp} type="number" value={f.medium_price} onChange={(e) => setF({ ...f, medium_price: e.target.value })} /></label>
         <label>Pullet ₦<input style={inp} type="number" value={f.pullet_price} onChange={(e) => setF({ ...f, pullet_price: e.target.value })} /></label>

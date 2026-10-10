@@ -105,7 +105,7 @@ Enforce MOV, cutoff, size enum, price immutability after lock server-side.
 
 ## PRD acceptance mapping (new .md PRD §25)
 1. Admin sets prices → /prices + POST /api/price-weeks ✅
-2. Monday-only orders → weekday guard in POST /api/orders (override: ORDER_WINDOW_OVERRIDE=true) ✅
+2. Wed–Mon orders → weekday guard in POST /api/orders (override: ORDER_WINDOW_OVERRIDE=true) ✅
 3. MOV 10 enforced ✅ 4. Size select ✅ 5. Gateway authorize → /api/pay ready (local-hold verified; live capture the moment PAYSTACK_SECRET_KEY is set) ⏳keys-only
 6. Hold until validation ✅ 7–9. Adjust + auto calc + wallet credit ✅ 10. Wallet-first checkout ✅
 11. First-time crate fee ✅ 12. Swap reminder ✅ 13–14. Admin orders/dispatch ✅
