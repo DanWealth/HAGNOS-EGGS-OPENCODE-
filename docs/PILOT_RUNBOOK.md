@@ -28,6 +28,10 @@
 
 ## Rollback
 - Wrong prices? POST /api/price-weeks again before the week locks for new checkouts (early orders keep their price).
+
+## Backup (buyer data lives in Docker — back it up weekly)
+- Save: `docker exec hagnoseggs-db-1 pg_dump -U hagnos -d hagnos_eggs -F c -f /tmp/backup.dump` then `docker cp hagnoseggs-db-1:/tmp/backup.dump db/backups/` (folder is git-ignored, never committed).
+- Restore: `docker cp db/backups/backup.dump hagnoseggs-db-1:/tmp/backup.dump` then `docker exec hagnoseggs-db-1 pg_restore -U hagnos -d hagnos_eggs -c /tmp/backup.dump`.
 - Bad order? Cancel in DB (status='Cancelled') before cutoff; hold released at cutoff.
 - App down? `docker compose up -d` restarts both boxes. Data lives in pgdata volume.
 - Existing database? Apply `db/migrations/001_payment_notifications.sql` once with `docker compose exec -T db psql -U hagnos -d hagnos_eggs -f /docker-entrypoint-initdb.d/migrations/001_payment_notifications.sql`.

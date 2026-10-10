@@ -31,6 +31,12 @@ export default function Landing() {
           <div style={card}><h3>🚚 Tuesday drops + crate swap</h3><p>Full crates in, empties out. First order includes crates.</p></div>
         </div>
 
+        <div style={{ background: C.grape, color: "#fff", borderRadius: 12, padding: 24, border: `2px solid ${C.ink}` }}>
+          <h2 style={{ marginTop: 0 }}>Run a neighborhood hub?</h2>
+          <p>Depot partners buy 5% below commercial price, sell to Indomie joints and walk-ins, and keep the margin. Same Tuesday truck, same wallet rollover.</p>
+          <a href="/order" style={{ display: "inline-block", background: "#fff", color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Register as a hub</a>
+        </div>
+
         <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 24 }}>
           <h2 style={{ color: C.sun, marginTop: 0 }}>How a week runs</h2>
           <p><b>Wednesday morning</b> — Admin sets prices (locked all week) &nbsp;→&nbsp; <b>Wed–Mon</b> — you order, funds held &nbsp;→&nbsp; <b>Sunday</b> — Admin reviews prices &nbsp;→&nbsp; <b>Tuesday AM</b> — farm paid, truck rolls &nbsp;→&nbsp; <b>Tuesday PM</b> — delivery + crate swap &nbsp;→&nbsp; <b>Night</b> — funds released, credits to wallet.</p>
