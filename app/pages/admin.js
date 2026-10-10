@@ -4,11 +4,15 @@ export default function Admin() {
   const [data, setData] = useState(null);
   const [msg, setMsg] = useState("");
   const [stats, setStats] = useState(null);
+  const [session, setSession] = useState("checking");
   const load = () => {
     fetch("/api/orders-list").then((r) => r.json()).then(setData);
     fetch("/api/metrics").then((r) => r.json()).then(setStats).catch(() => {});
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    fetch("/api/auth/get-session").then((r) => r.json()).then((j) => setSession(j.session ? "in" : "out")).catch(() => setSession("out"));
+    load();
+  }, []);
 
   async function post(path, body) {
     setMsg("Working…");
@@ -18,6 +22,8 @@ export default function Admin() {
     load();
   }
 
+  if (session === "checking") return <p style={{ padding: 20 }}>Checking sign-in…</p>;
+  if (session === "out") return (<div style={{ maxWidth: 480, margin: "40px auto", padding: 20, fontFamily: "Inter, system-ui" }}><h1>Admin only</h1><p>Sign in first.</p><a href="/login">Go to sign in →</a></div>);
   if (!data) return <p style={{ padding: 20 }}>Loading holds…</p>;
   return (
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>

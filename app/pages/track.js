@@ -32,6 +32,7 @@ export default function Track() {
             <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
               <h2 style={{ marginTop: 0 }}>{t.order.no} — {t.order.crates}× {t.order.size}{t.order.delivered_size ? ` → ${t.order.delivered_size}` : ""}</h2>
               <p>Held ₦{t.order.total.toLocaleString()} • Wallet −₦{t.order.wallet.toLocaleString()} • {t.order.zone}{t.order.address ? ` • ${t.order.address}` : ""}</p>
+              <button onClick={() => window.print()} style={{ padding: "8px 14px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: "#fff" }}>🖨 Print receipt</button>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                 {t.timeline.map((s) => (
                   <span key={s.step} style={{ padding: "6px 10px", borderRadius: 20, fontWeight: 800, fontSize: 12, border: `2px solid ${C.ink}`, background: s.done ? C.volt : "#fff" }}>{s.done ? "✓ " : ""}{s.step}</span>

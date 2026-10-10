@@ -4,8 +4,14 @@ export default function Prices() {
   const [weeks, setWeeks] = useState([]);
   const [f, setF] = useState({ week_start: "", large_price: 4500, medium_price: 4000, pullet_price: 3200 });
   const [msg, setMsg] = useState("");
+  const [session, setSession] = useState("checking");
   const load = () => fetch("/api/price-weeks").then((r) => r.json()).then((j) => setWeeks(j.weeks || []));
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    fetch("/api/auth/get-session").then((r) => r.json()).then((j) => setSession(j.session ? "in" : "out")).catch(() => setSession("out"));
+    load();
+  }, []);
+  if (session === "checking") return <p style={{ padding: 20 }}>Checking sign-in…</p>;
+  if (session === "out") return (<div style={{ maxWidth: 480, margin: "40px auto", padding: 20, fontFamily: "Inter, system-ui" }}><h1>Admin only</h1><p>Sign in first.</p><a href="/login">Go to sign in →</a></div>);
   const inp = { padding: 10, border: "2px solid #0A0A0A", borderRadius: 8, fontSize: 15, width: "100%", marginTop: 4 };
 
   async function save() {
