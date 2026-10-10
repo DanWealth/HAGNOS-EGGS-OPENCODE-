@@ -17,14 +17,14 @@ export default async function handler(req, res) {
     const tel = phone ? normalizePhone(phone) : null;
     if (!email && !tel) return res.status(400).json({ error: "email or phone required" });
     const r = email
-      ? await query("SELECT id, email, name, phone, role, first_order_done FROM users WHERE LOWER(email)=LOWER($1)", [email])
-      : await query("SELECT id, email, name, phone, role, first_order_done FROM users WHERE phone=$1", [tel]);
+      ? await query("SELECT id, email, name, phone, role, first_order_done, shop_address, zone, weekly_volume FROM users WHERE LOWER(email)=LOWER($1)", [email])
+      : await query("SELECT id, email, name, phone, role, first_order_done, shop_address, zone, weekly_volume FROM users WHERE phone=$1", [tel]);
     if (!r.rows.length) return res.status(200).json({ exists: false });
     const w = await query("SELECT balance FROM wallet_accounts WHERE user_id=$1", [r.rows[0].id]);
     return res.status(200).json({ exists: true, user: r.rows[0], wallet: Number(w.rows[0]?.balance || 0) });
   }
   if (req.method !== "POST") return res.status(405).end();
-  const { email, phone, name, role } = req.body || {};
+  const { email, phone, name, role, shop_address, zone, weekly_volume } = req.body || {};
   const tel = normalizePhone(phone);
   const mail = email ? String(email).toLowerCase().trim() : null;
   if (!name) return res.status(400).json({ error: "name required" });
@@ -44,8 +44,8 @@ export default async function handler(req, res) {
     : await query("SELECT id FROM users WHERE phone=$1", [tel]);
   if (dup.rows.length) return res.status(200).json({ exists: true, id: dup.rows[0].id });
   const id = randomUUID();
-  await query("INSERT INTO users (id, email, name, phone, role) VALUES ($1,$2,$3,$4,$5)",
-    [id, mail, name, tel, role === "hub_operator" ? "hub_operator" : "buyer_commercial"]);
+  await query("INSERT INTO users (id, email, name, phone, role, shop_address, zone, weekly_volume) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+    [id, mail, name, tel, role === "hub_operator" ? "hub_operator" : "buyer_commercial", shop_address || null, zone === "island" ? "island" : zone === "mainland" ? "mainland" : null, parseInt(weekly_volume) || null]);
   await query("INSERT INTO wallet_accounts (user_id, balance) VALUES ($1,0) ON CONFLICT DO NOTHING", [id]);
   await query("INSERT INTO crate_ledger (user_id, issued, returned) VALUES ($1,0,0) ON CONFLICT DO NOTHING", [id]);
   res.status(201).json({ exists: false, id, created: true });

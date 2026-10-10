@@ -36,6 +36,7 @@ export default async function handler(req, res) {
     user = { id, role: "buyer_commercial", first_order_done: false };
   }
   if (!user) return res.status(400).json({ error: "unknown-buyer", message: "Register with your email first." });
+  if (user.approved === false) return res.status(403).json({ error: "account-suspended", message: "Account pending approval. Contact Hagnos." });
 
   const unit = UNIT[size_ordered];
   const gross = unit * crates;
