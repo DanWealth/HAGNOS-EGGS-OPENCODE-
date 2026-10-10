@@ -34,7 +34,7 @@ export default function Landing() {
         <div style={{ background: C.grape, color: "#fff", borderRadius: 12, padding: 24, border: `2px solid ${C.ink}` }}>
           <h2 style={{ marginTop: 0 }}>Run a neighborhood hub?</h2>
           <p>Depot partners buy 5% below commercial price, sell to Indomie joints and walk-ins, and keep the margin. Same Tuesday truck, same wallet rollover.</p>
-          <a href="/order" style={{ display: "inline-block", background: "#fff", color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Register as a hub</a>
+          <a href="/hub" style={{ display: "inline-block", background: "#fff", color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Register as a hub</a>
         </div>
 
         <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 24 }}>
