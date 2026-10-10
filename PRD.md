@@ -40,3 +40,6 @@ This file records tool choices and changes you asked for.
 5. Do NOT use Vercel — host on local device with Docker.
 6. Colors → very bright, sharp contrast (volt, sun, tang, sky, grape, rose).
 7. Work one phase at a time; keep talk simple and clear.
+8. Window changed to Wed–Mon (Tue delivery-only); prices set Wednesday, Sunday review, locked all week.
+9. Landing first with "Place your order"; email-gated buyer studio.
+10. Visual studio with Gemini iterative visuals.

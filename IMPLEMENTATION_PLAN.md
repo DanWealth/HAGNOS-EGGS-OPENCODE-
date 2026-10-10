@@ -101,7 +101,8 @@ Enforce MOV, cutoff, size enum, price immutability after lock server-side.
 - Phase 7 DONE (ready-mode): notices feed + Termii SMS hook (activates with SMS_API_KEY); Paystack hold/capture ready (/api/pay verified local-hold, activates with PAYSTACK_SECRET_KEY).
 - Phase 8 LIVE: /api/metrics vs 95% / <2% targets + farm demand.
 - Phase 9 READY: `docs/PILOT_RUNBOOK.md`. Needs only the 2 keys (template: app/.env.example).
-- App: 8 pages (/, /order, /orders, /wallet, /admin, /prices, /login, /driver), all 200. DB: localhost:5432.
+- App: 11 pages (/, /order, /orders, /wallet, /admin, /prices, /login, /driver, /visuals, /track + APIs), all 200. DB: localhost:5432.
+- Latest: buyer tracking by HG number, live quote preview, one-click reorder, buyer-scoped history/wallet/notices, zone picker, cancel path, bulk admin actions, server-side admin gate (ADMIN_EMAILS), sign-in gates, printable receipts, live admin prices in studio, window countdown, Gemini visual studio (needs billing), Paystack/Termii ready-mode (need keys).
 
 ## PRD acceptance mapping (new .md PRD §25)
 1. Admin sets prices → /prices + POST /api/price-weeks ✅
