@@ -2,9 +2,11 @@ import { query } from "../../lib/db";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
-  const { email } = req.query;
-  const scope = email ? "WHERE LOWER(u.email)=LOWER($1)" : "";
-  const args = email ? [email] : [];
+  const { email, phone } = req.query;
+  const digits = String(phone || "").replace(/\D/g, "");
+  const tel = /^0\d{10}$/.test(digits) ? `234${digits.slice(1)}` : digits || null;
+  const scope = email ? "WHERE LOWER(u.email)=LOWER($1)" : tel ? "WHERE u.phone=$1" : "";
+  const args = email ? [email] : tel ? [tel] : [];
   const r = await query(
     `SELECT o.id, o.order_no, o.size_ordered, o.crates, o.total_held, o.status, o.zone, o.address, o.created_at, h.status AS pay_status, h.gateway_ref FROM orders o JOIN users u ON u.id=o.user_id LEFT JOIN LATERAL (SELECT status, gateway_ref FROM payment_holds WHERE order_id=o.id ORDER BY id DESC LIMIT 1) h ON true ${scope} ORDER BY o.created_at DESC LIMIT 50`,
     args

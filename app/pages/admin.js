@@ -29,7 +29,7 @@ export default function Admin() {
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>
       <h1>Admin — Monday holds: ₦{Number(data.totalHeld).toLocaleString()}</h1>
       {stats && <p><b>{stats.orders} orders</b> • fulfillment {stats.fulfillmentPct}% (target {stats.targetFulfillmentPct}%) • breakage {stats.breakagePct}% (target &lt;{stats.targetBreakagePct}%) • wallet liability ₦{Number(stats.walletLiability).toLocaleString()}</p>}
-      {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.length ? stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ") : "none open"}{stats.committed && stats.committed.hubs > 0 ? ` • Committed: ${stats.committed.crates} crates/wk across ${stats.committed.hubs} hubs` : ""}</p>}
+      {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.length ? stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ") : "none open"}</p>}
       {stats && stats.bySize && <p><b>By size:</b> {stats.bySize.map((d) => `${d.size} ${d.crates} crates`).join(" • ")}</p>}
       {stats && stats.byRole && <p><b>By buyer:</b> {stats.byRole.map((d) => `${d.role} ${d.crates} crates`).join(" • ")}</p>}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>

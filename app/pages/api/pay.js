@@ -9,9 +9,9 @@ import { randomUUID } from "crypto";
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { order_id, email } = req.body || {};
-    if (!order_id || !email) return res.status(400).json({ error: "order_id and email required" });
+    if (!order_id) return res.status(400).json({ error: "order_id required" });
     const o = await query(
-      `SELECT o.id, o.order_no, o.total_held, o.status, u.email,
+      `SELECT o.id, o.order_no, o.total_held, o.status, u.email, u.phone,
               h.amount, h.status AS hold_status, h.gateway_ref
        FROM orders o
        JOIN users u ON u.id=o.user_id
@@ -22,8 +22,12 @@ export default async function handler(req, res) {
     );
     if (!o.rows.length) return res.status(404).json({ error: "no-order" });
     const order = o.rows[0];
-    if (String(order.email || "").toLowerCase() !== String(email).trim().toLowerCase()) {
+    const who = String(email || order.email || "").trim().toLowerCase();
+    if (who && String(order.email || "").toLowerCase() !== who) {
       return res.status(403).json({ error: "buyer-mismatch" });
+    }
+    if (!who) {
+      return res.status(400).json({ error: "need-email", message: "Add an email to pay online — Paystack needs one." });
     }
     if (!["FundsHeld", "Validated"].includes(order.status)) return res.status(409).json({ error: "order-not-payable" });
     if (order.hold_status === "captured") return res.status(200).json({ mode: "paystack", status: "paid" });
@@ -43,7 +47,7 @@ export default async function handler(req, res) {
     if (!reserved.rows.length) return res.status(409).json({ error: "payment-pending" });
     try {
       const init = await initializePayment({
-        email: order.email,
+        email: who,
         amountKobo: Math.round(Number(order.total_held) * 100),
         reference: ref,
         callbackUrl: `${siteUrl}/order?ref=${encodeURIComponent(ref)}`,

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
     if (lagosDay === 2) return res.status(403).json({ error: "window-closed", message: "Tuesday is delivery day. Orders open Wed–Mon." });
   }
-  const { size_ordered, crates, zone, address, email } = req.body || {};
+  const { size_ordered, crates, zone, address, email, phone } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });
   if (!crates || crates < 10) return res.status(400).json({ error: "mov-min-10" });
   const z = zone === "island" ? "island" : "mainland";
@@ -21,9 +21,13 @@ export default async function handler(req, res) {
   if (pw.rows[0].locked_at) return res.status(403).json({ error: "prices-locked", message: "Week is locked. Wait for next Wednesday." });
   const P = pw.rows[0];
 
+  const digits = String(phone || "").replace(/\D/g, "");
+  const tel = /^0\d{10}$/.test(digits) ? `234${digits.slice(1)}` : digits || null;
   let u = email
     ? await query("SELECT * FROM users WHERE LOWER(email)=LOWER($1)", [email])
-    : await query("SELECT * FROM users LIMIT 1");
+    : tel
+      ? await query("SELECT * FROM users WHERE phone=$1", [tel])
+      : await query("SELECT * FROM users LIMIT 1");
   let user = u.rows[0];
   if (!user && !email) {
     const id = randomUUID();
@@ -32,7 +36,6 @@ export default async function handler(req, res) {
     user = { id, role: "buyer_commercial", first_order_done: false };
   }
   if (!user) return res.status(400).json({ error: "unknown-buyer", message: "Register with your email first." });
-  if (user.approved === false) return res.status(403).json({ error: "account-suspended", message: "Account pending approval. Contact Hagnos." });
 
   const unit = UNIT[size_ordered];
   const gross = unit * crates;

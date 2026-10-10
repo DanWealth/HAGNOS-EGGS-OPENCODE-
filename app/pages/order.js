@@ -6,9 +6,13 @@ function windowOpen() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay() !== 2;
 }
 export default function Order() {
-  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
   const [buyer, setBuyer] = useState(null);
-  const [reg, setReg] = useState({ name: "", phone: "", role: "buyer_commercial" });
+  const [reg, setReg] = useState({ name: "", phone: "", email: "", role: "buyer_commercial" });
+  const [payEmail, setPayEmail] = useState("");
+  const contactIsEmail = contact.includes("@");
+  const whoQuery = () => contactIsEmail ? `email=${encodeURIComponent(contact)}` : `phone=${encodeURIComponent(contact)}`;
+  const whoBody = () => buyer.email ? { email: buyer.email } : { phone: buyer.phone };
   const [msg, setMsg] = useState("");
   const [size, setSize] = useState("Large");
   const [crates, setCrates] = useState(10);
@@ -26,7 +30,7 @@ export default function Order() {
   const ok = crates >= 10;
   const [quote, setQuote] = useState(null);
   useEffect(() => {
-    const q = `/api/quote?size=${size}&crates=${crates}&zone=${zone}` + (buyer?.email ? `&email=${encodeURIComponent(buyer.email)}` : "");
+    const q = `/api/quote?size=${size}&crates=${crates}&zone=${zone}` + (buyer ? (buyer.email ? `&email=${encodeURIComponent(buyer.email)}` : buyer.phone ? `&phone=${encodeURIComponent(buyer.phone)}` : "") : "");
     fetch(q).then((r) => r.json()).then((j) => setQuote(j.total != null ? j : null)).catch(() => {});
   }, [size, crates, zone, buyer]);
   const input = { width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 15, marginTop: 6 };
@@ -71,40 +75,50 @@ export default function Order() {
 
   async function findBuyer() {
     setMsg("Checking…");
-    const r = await fetch(`/api/account?email=${encodeURIComponent(email)}`);
+    const r = await fetch(`/api/account?${whoQuery()}`);
     const j = await r.json();
     if (j.exists) {
       setBuyer({ ...j.user, wallet: j.wallet });
-      if (j.user.zone === "island" || j.user.zone === "mainland") setZone(j.user.zone);
-      if (j.user.shop_address) setAddress(j.user.shop_address);
-      setMsg(`Welcome back, ${j.user.name || j.user.email}!`);
-      const h = await fetch("/api/orders-list?email=" + encodeURIComponent(email)).then((x) => x.json());
+      setMsg(`Welcome back, ${j.user.name || j.user.email || j.user.phone}!`);
+      const h = await fetch("/api/orders-list?" + whoQuery()).then((x) => x.json());
       setHist((h.orders || []).slice(0, 10));
     } else {
       setBuyer(null);
+      setReg({ name: "", phone: contactIsEmail ? "" : contact, email: contactIsEmail ? contact : "", role: "buyer_commercial" });
       setMsg("New here — tell us about your business.");
     }
   }
 
   async function register() {
     setMsg("Creating your account…");
-    const r = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, ...reg }) });
+    const r = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(reg) });
     const j = await r.json();
     if (r.ok) {
-      const g = await fetch(`/api/account?email=${encodeURIComponent(email)}`).then((x) => x.json());
-      setBuyer({ ...g.user, wallet: g.wallet || 0 });
-      if (g.user?.zone === "island" || g.user?.zone === "mainland") setZone(g.user.zone);
-      if (g.user?.shop_address) setAddress(g.user.shop_address);
-      setMsg(`Studio open — welcome, ${reg.name}!`);
+      const g = await fetch(`/api/account?${reg.email ? `email=${encodeURIComponent(reg.email)}` : `phone=${encodeURIComponent(reg.phone)}`}`).then((x) => x.json());
+      if (g.exists) {
+        setBuyer({ ...g.user, wallet: g.wallet || 0 });
+        setMsg(`Studio open — welcome, ${reg.name}!`);
+      } else setMsg("Account created — press Continue again to enter.");
+    } else setMsg(`Failed: ${j.error}`);
+  }
+
+  async function attachEmail() {
+    if (!payEmail.includes("@")) { setMsg("Enter a valid email to pay online."); return; }
+    const r = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: payEmail, phone: buyer.phone, name: buyer.name || "buyer" }) });
+    const j = await r.json();
+    if (r.ok) {
+      setBuyer({ ...buyer, email: payEmail });
+      setPayEmail("");
+      setMsg("Email saved — continue to payment.");
     } else setMsg(`Failed: ${j.error}`);
   }
 
   async function cancelOrder(orderId) {
     setMsg("Cancelling…");
-    const r = await fetch("/api/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, email: buyer.email }) });
+    const r = await fetch("/api/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, ...whoBody() }) });
     const j = await r.json();
     setMsg(r.ok ? "Order cancelled. Hold released." : `Failed: ${j.error || j.message}`);
-    fetch("/api/orders-list?email=" + encodeURIComponent(buyer.email)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
+    fetch("/api/orders-list?" + (buyer.email ? `email=${encodeURIComponent(buyer.email)}` : `phone=${encodeURIComponent(buyer.phone)}`)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
   }
 
   async function lockOrder() {
@@ -114,7 +128,7 @@ export default function Order() {
       const r = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ size_ordered: size, crates, zone, address, email: buyer.email }),
+        body: JSON.stringify({ size_ordered: size, crates, zone, address, ...whoBody() }),
       });
       const j = await r.json();
       if (!r.ok) {
@@ -123,7 +137,7 @@ export default function Order() {
       }
       setPaymentOrder({ id: j.id, orderNo: j.order_no, amount: Number(j.total_held) });
       setMsg(`Order ${j.order_no || ""} placed. Review the final amount, then continue to payment.`);
-      fetch("/api/orders-list?email=" + encodeURIComponent(buyer.email)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
+      fetch("/api/orders-list?" + (buyer.email ? `email=${encodeURIComponent(buyer.email)}` : `phone=${encodeURIComponent(buyer.phone)}`)).then((x) => x.json()).then((h) => setHist((h.orders || []).slice(0, 10))).catch(() => {});
     } catch {
       setMsg("We could not place the order. Please try again.");
     } finally {
@@ -140,13 +154,14 @@ export default function Order() {
       <div style={{ maxWidth: 640, margin: "20px auto", display: "grid", gap: 16, padding: 12 }}>
         {!buyer && (
           <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
-            <h3>1. Your email</h3>
-            <input style={input} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@bakery.com" />
+            <h3>1. Your email or phone number</h3>
+            <input style={input} value={contact} onChange={(e) => setContact(e.target.value)} placeholder="you@bakery.com or 0803 000 0000" />
             <button onClick={findBuyer} style={{ marginTop: 10, padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>Continue →</button>
             {msg && !buyer && regShown(msg) && (
               <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
                 <label>Business name<input style={input} value={reg.name} onChange={(e) => setReg({ ...reg, name: e.target.value })} placeholder="Sweet Crust Bakery" /></label>
-                <label>Phone<input style={input} value={reg.phone} onChange={(e) => setReg({ ...reg, phone: e.target.value })} placeholder="0803 000 0000" /></label>
+                <label>Email address<input style={input} value={reg.email} onChange={(e) => setReg({ ...reg, email: e.target.value })} placeholder="you@bakery.com (needed for online payment)" /></label>
+                <label>Phone number<input style={input} value={reg.phone} onChange={(e) => setReg({ ...reg, phone: e.target.value })} placeholder="0803 000 0000" /></label>
                 <label>I am a<select style={input} value={reg.role} onChange={(e) => setReg({ ...reg, role: e.target.value })}><option value="buyer_commercial">Bakery / Hotel / Supermarket</option><option value="hub_operator">Hub Operator (neighborhood depot)</option></select></label>
                 <button onClick={register} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.volt }}>Create account + open studio</button>
               </div>
@@ -157,7 +172,7 @@ export default function Order() {
         {buyer && (
           <>
             <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 16 }}>
-              <b>{buyer.name || buyer.email}</b> • Wallet ₦{Number(buyer.wallet || 0).toLocaleString()} • {buyer.role === "hub_operator" ? "Hub (5% off)" : "Commercial"}
+              <b>{buyer.name || buyer.email || buyer.phone}</b> • Wallet ₦{Number(buyer.wallet || 0).toLocaleString()} • {buyer.role === "hub_operator" ? "Hub (5% off)" : "Commercial"}
             </div>
             <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
               <h3>Pick size</h3>
@@ -186,6 +201,10 @@ export default function Order() {
               {paymentOrder && <div style={{ marginTop: 12, padding: 12, background: "#fff", color: C.ink, borderRadius: 8 }}>
                 <b>Order {paymentOrder.orderNo}: ₦{paymentOrder.amount.toLocaleString("en-NG")} due</b>
                 <p>Paystack checkout charges this amount immediately when you authorize payment.</p>
+                {!buyer.email && (<div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                  <input value={payEmail} onChange={(e) => setPayEmail(e.target.value)} placeholder="Email needed for online payment" style={{ flex: 1, padding: 10, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 14 }} />
+                  <button onClick={attachEmail} style={{ padding: "10px 14px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>Save</button>
+                </div>)}
                 <button disabled={paying} onClick={() => startPayment(paymentOrder.id)} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>{paying ? "Opening checkout…" : "Continue to payment"}</button>
               </div>}
               {msg && <p style={{ color: C.sun }}>{msg}</p>}
