@@ -22,7 +22,7 @@ export default function Landing() {
           <h1 style={{ fontSize: 44, margin: "16px 0 8px" }}>Fresh eggs for your business.<br />Locked prices. <span style={{ background: C.sun, padding: "0 10px", border: `2px solid ${C.ink}`, borderRadius: 8 }}>Tuesday delivery.</span></h1>
           <p style={{ fontSize: 19, maxWidth: 620, margin: "0 auto" }}>Bakeries, supermarkets, hotels and neighborhood hubs order on Monday — we aggregate demand, buy straight from the farm, and roll any savings into your wallet.</p>
           <a href="/order" style={{ display: "inline-block", marginTop: 20, background: C.volt, color: C.ink, fontWeight: 900, fontSize: 20, padding: "16px 36px", borderRadius: 12, textDecoration: "none", border: `2px solid ${C.ink}`, boxShadow: `4px 4px 0 ${C.ink}` }}>Place your order →</a>
-          <p><small>Minimum 10 crates • {windowStatus().text} • <a href="/visuals">See it fresh in the visual studio</a></small></p>
+        <p><small>Prices locked • {windowStatus().text} • <a href="/visuals">See it fresh</a> • <a href="/track">Track order</a></small></p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 12 }}>
