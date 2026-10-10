@@ -51,7 +51,7 @@ export default function Order() {
       const r = await fetch("/api/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: orderId, email: buyer.email }),
+        body: JSON.stringify({ order_id: orderId, ...(buyer.email ? { email: buyer.email } : { phone: buyer.phone }) }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "payment-setup-failed");
@@ -206,7 +206,7 @@ export default function Order() {
                 <b>Order {paymentOrder.orderNo}: ₦{paymentOrder.amount.toLocaleString("en-NG")} due</b>
                 <p>Paystack checkout charges this amount immediately when you authorize payment.</p>
                 {!buyer.email && (<div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                  <input value={payEmail} onChange={(e) => setPayEmail(e.target.value)} placeholder="Email needed for online payment" style={{ flex: 1, padding: 10, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 14 }} />
+                  <input value={payEmail} onChange={(e) => setPayEmail(e.target.value)} placeholder="Email for your Paystack receipt (optional)" style={{ flex: 1, padding: 10, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 14 }} />
                   <button onClick={attachEmail} style={{ padding: "10px 14px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>Save</button>
                 </div>)}
                 <button disabled={paying} onClick={() => startPayment(paymentOrder.id)} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>{paying ? "Opening checkout…" : "Continue to payment"}</button>
