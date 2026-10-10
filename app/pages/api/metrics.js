@@ -13,6 +13,8 @@ export default async function handler(req, res) {
   const demand = await query(
     "SELECT size_ordered, COUNT(*) AS orders, COALESCE(SUM(crates),0) AS crates FROM orders WHERE status IN ('FundsHeld','Validated','Adjusted') GROUP BY size_ordered ORDER BY size_ordered"
   );
+  const bySize = await query("SELECT size_ordered, COUNT(*) AS orders, COALESCE(SUM(crates),0) AS crates FROM orders GROUP BY size_ordered ORDER BY size_ordered");
+  const byRole = await query("SELECT u.role, COUNT(*) AS orders, COALESCE(SUM(o.crates),0) AS crates FROM orders o JOIN users u ON u.id=o.user_id GROUP BY u.role");
   const breakagePct = deliveredCrates.rows[0].c > 0 ? (cracked / (Number(deliveredCrates.rows[0].c) * 30)) * 100 : 0;
   res.status(200).json({
     orders: total,
@@ -23,5 +25,7 @@ export default async function handler(req, res) {
     walletLiability: Number(w.rows[0].liability),
     crates: Number(o.rows[0].crates),
     farmDemand: demand.rows.map((d) => ({ size: d.size_ordered, orders: Number(d.orders), crates: Number(d.crates) })),
+    bySize: bySize.rows.map((d) => ({ size: d.size_ordered, orders: Number(d.orders), crates: Number(d.crates) })),
+    byRole: byRole.rows.map((d) => ({ role: d.role, orders: Number(d.orders), crates: Number(d.crates) })),
   });
 }
