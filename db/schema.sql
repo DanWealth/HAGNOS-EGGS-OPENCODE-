@@ -7,10 +7,6 @@ CREATE TABLE users (
   email TEXT UNIQUE,
   role TEXT NOT NULL, -- buyer_commercial | hub_operator | admin | driver
   first_order_done BOOLEAN DEFAULT FALSE,
-  shop_address TEXT, -- hub depot address
-  zone TEXT, -- mainland | island (hub home zone)
-  weekly_volume INTEGER, -- hub estimated crates/week
-  approved BOOLEAN DEFAULT TRUE, -- admin can suspend by setting FALSE
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -40,7 +36,6 @@ CREATE TABLE orders (
   unit_price INTEGER NOT NULL,
   total_held INTEGER NOT NULL,
   wallet_applied INTEGER DEFAULT 0,
-  crate_fee INTEGER DEFAULT 0, -- First-Time Crate Fee actually charged (0 if buyer owns crates)
   status TEXT DEFAULT 'FundsHeld', -- FundsHeld | Validated | Dispatched | Delivered | Settled | Adjusted | Failed | Cancelled
   zone TEXT, -- mainland | island
   address TEXT,

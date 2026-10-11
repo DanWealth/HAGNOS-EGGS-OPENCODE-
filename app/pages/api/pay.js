@@ -8,12 +8,10 @@ import { randomUUID } from "crypto";
 // GET /api/pay?ref=X verifies the provider result before recording payment.
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { order_id, email, phone } = req.body || {};
-    const digits = String(phone || "").replace(/\D/g, "");
-    const tel = /^0\d{10}$/.test(digits) ? `234${digits.slice(1)}` : digits || null;
-    if (!order_id) return res.status(400).json({ error: "order_id required" });
+    const { order_id, email } = req.body || {};
+    if (!order_id || !email) return res.status(400).json({ error: "order_id and email required" });
     const o = await query(
-      `SELECT o.id, o.order_no, o.total_held, o.status, u.email, u.phone,
+      `SELECT o.id, o.order_no, o.total_held, o.status, u.email,
               h.amount, h.status AS hold_status, h.gateway_ref
        FROM orders o
        JOIN users u ON u.id=o.user_id
@@ -24,27 +22,8 @@ export default async function handler(req, res) {
     );
     if (!o.rows.length) return res.status(404).json({ error: "no-order" });
     const order = o.rows[0];
-    // Buyer identity: an email cashier must match the order's email;
-    // a phone cashier must match the order's phone.
-    if (email && String(order.email || "").toLowerCase() !== String(email).trim().toLowerCase()) {
+    if (String(order.email || "").toLowerCase() !== String(email).trim().toLowerCase()) {
       return res.status(403).json({ error: "buyer-mismatch" });
-    }
-    if (!email && tel && String(order.phone || "") !== tel) {
-      return res.status(403).json({ error: "buyer-mismatch" });
-    }
-    // Paystack demands an email at checkout. Phone-only buyers pay under the
-    // merchant billing address (order-tagged) instead of being blocked.
-    // Security is unchanged: same checkout, same server-side verification of
-    // reference + exact kobo amount + NGN currency. Receipts reach the buyer
-    // through the studio, SMS and tracking page.
-    let who = String(email || order.email || "").trim().toLowerCase();
-    if (!who) {
-      const fallback = String(process.env.PAYSTACK_FALLBACK_EMAIL || "").trim();
-      if (!fallback.includes("@")) {
-        return res.status(400).json({ error: "need-email", message: "Add an email to pay online — or set PAYSTACK_FALLBACK_EMAIL." });
-      }
-      const [box, domain] = fallback.split("@");
-      who = `${box}+${String(order.order_no || order.id).replace(/[^A-Za-z0-9-]/g, "")}@${domain}`;
     }
     if (!["FundsHeld", "Validated"].includes(order.status)) return res.status(409).json({ error: "order-not-payable" });
     if (order.hold_status === "captured") return res.status(200).json({ mode: "paystack", status: "paid" });
@@ -64,7 +43,7 @@ export default async function handler(req, res) {
     if (!reserved.rows.length) return res.status(409).json({ error: "payment-pending" });
     try {
       const init = await initializePayment({
-        email: who,
+        email: order.email,
         amountKobo: Math.round(Number(order.total_held) * 100),
         reference: ref,
         callbackUrl: `${siteUrl}/order?ref=${encodeURIComponent(ref)}`,

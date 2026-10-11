@@ -1,0 +1,13 @@
+{
+  "name": "Hagnos Eggs",
+  "short_name": "Hagnos",
+  "description": "Farm-fresh eggs for Lagos businesses. Order Wed–Mon, delivered Tuesday.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#00E676",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

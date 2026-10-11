@@ -5,7 +5,7 @@ import { Pool } from "pg";
 export const auth = betterAuth({
   database: {
     dialect: new PostgresDialect({
-      pool: new Pool({ connectionString: process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL }),
+      pool: new Pool({ connectionString: process.env.DATABASE_URL }),
     }),
     type: "postgres",
   },
