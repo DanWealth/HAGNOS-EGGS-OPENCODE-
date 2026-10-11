@@ -69,14 +69,20 @@ function Buyers() {
     await fetch("/api/buyers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, role }) });
     load();
   }
+  async function setApproved(id, approved) {
+    await fetch("/api/buyers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approved }) });
+    load();
+  }
   return (
     <div>
       {list.map((u) => (
         <div key={u.id} style={{ border: "2px solid #0A0A0A", borderRadius: 8, padding: 8, marginBottom: 6 }}>
-          <b>{u.name || u.email || u.phone}</b> <small>{u.email}</small> — {u.role} — wallet ₦{Number(u.wallet).toLocaleString()}
+          <b>{u.name || u.email || u.phone}</b> <small>{u.email}</small> — {u.role}{u.approved === false ? " ⛔ suspended" : ""} — wallet ₦{Number(u.wallet).toLocaleString()}
           <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
             <button onClick={() => setRole(u.id, "buyer_commercial")} style={s}>Commercial</button>
             <button onClick={() => setRole(u.id, "hub_operator")} style={s}>Hub (5% off)</button>
+            <button onClick={() => setApproved(u.id, false)} style={s}>Suspend</button>
+            <button onClick={() => setApproved(u.id, true)} style={s}>Approve</button>
           </div>
         </div>
       ))}
