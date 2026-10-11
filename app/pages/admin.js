@@ -4,10 +4,12 @@ export default function Admin() {
   const [data, setData] = useState(null);
   const [msg, setMsg] = useState("");
   const [stats, setStats] = useState(null);
+  const [forecast, setForecast] = useState([]);
   const [session, setSession] = useState("checking");
   const load = () => {
     fetch("/api/orders-list").then((r) => r.json()).then(setData);
     fetch("/api/metrics").then((r) => r.json()).then(setStats).catch(() => {});
+    fetch("/api/forecast").then((r) => r.json()).then((j) => setForecast(j.forecast || [])).catch(() => {});
   };
   useEffect(() => {
     fetch("/api/auth/get-session").then((r) => r.json()).then((j) => setSession(j.session ? "in" : "out")).catch(() => setSession("out"));
@@ -29,9 +31,10 @@ export default function Admin() {
     <div style={{ fontFamily: "Inter, system-ui", padding: 20, maxWidth: 720, margin: "0 auto" }}>
       <h1>Admin — Monday holds: ₦{Number(data.totalHeld).toLocaleString()}</h1>
       {stats && <p><b>{stats.orders} orders</b> • fulfillment {stats.fulfillmentPct}% (target {stats.targetFulfillmentPct}%) • breakage {stats.breakagePct}% (target &lt;{stats.targetBreakagePct}%) • wallet liability ₦{Number(stats.walletLiability).toLocaleString()}</p>}
-      {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.length ? stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ") : "none open"}</p>}
+      {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.length ? stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ") : "none open"}{stats.committed && stats.committed.hubs > 0 ? ` • Committed: ${stats.committed.crates} crates/wk across ${stats.committed.hubs} hubs` : ""}</p>}
       {stats && stats.bySize && <p><b>By size:</b> {stats.bySize.map((d) => `${d.size} ${d.crates} crates`).join(" • ")}</p>}
       {stats && stats.byRole && <p><b>By buyer:</b> {stats.byRole.map((d) => `${d.role} ${d.crates} crates`).join(" • ")}</p>}
+      {forecast.length > 0 && <p><b> Tuesday buy suggestion:</b> {forecast.map((f) => `${f.size} ~${f.suggested} crates (avg ${f.avgPerWeek}/wk)`).join(" • ")}</p>}
       <details style={{ marginBottom: 16 }}>
         <summary><b>Buyers & roles</b></summary>
         <Buyers />
