@@ -32,6 +32,10 @@ export default function Admin() {
       {stats && stats.farmDemand && <p><b>Farm demand:</b> {stats.farmDemand.length ? stats.farmDemand.map((d) => `${d.crates}× ${d.size} (${d.orders} orders)`).join(" • ") : "none open"}</p>}
       {stats && stats.bySize && <p><b>By size:</b> {stats.bySize.map((d) => `${d.size} ${d.crates} crates`).join(" • ")}</p>}
       {stats && stats.byRole && <p><b>By buyer:</b> {stats.byRole.map((d) => `${d.role} ${d.crates} crates`).join(" • ")}</p>}
+      <details style={{ marginBottom: 16 }}>
+        <summary><b>Buyers & roles</b></summary>
+        <Buyers />
+      </details>
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button onClick={() => post("/api/routes")} style={b}>Build routes</button>
         <button onClick={() => post("/api/fulfill", { action: "validate-all" })} style={b}>Validate all</button>
@@ -56,3 +60,27 @@ export default function Admin() {
 }
 const b = { padding: "10px 14px", fontWeight: 800, borderRadius: 8, border: "2px solid #0A0A0A", background: "#FFD600" };
 const s = { padding: "6px 10px", fontWeight: 700, borderRadius: 8, border: "2px solid #0A0A0A", background: "#fff" };
+
+function Buyers() {
+  const [list, setList] = useState([]);
+  const load = () => fetch("/api/buyers").then((r) => r.json()).then((j) => setList(j.buyers || []));
+  useEffect(() => { load(); }, []);
+  async function setRole(id, role) {
+    await fetch("/api/buyers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, role }) });
+    load();
+  }
+  return (
+    <div>
+      {list.map((u) => (
+        <div key={u.id} style={{ border: "2px solid #0A0A0A", borderRadius: 8, padding: 8, marginBottom: 6 }}>
+          <b>{u.name || u.email || u.phone}</b> <small>{u.email}</small> — {u.role} — wallet ₦{Number(u.wallet).toLocaleString()}
+          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+            <button onClick={() => setRole(u.id, "buyer_commercial")} style={s}>Commercial</button>
+            <button onClick={() => setRole(u.id, "hub_operator")} style={s}>Hub (5% off)</button>
+          </div>
+        </div>
+      ))}
+      {list.length === 0 && <p>No buyers yet.</p>}
+    </div>
+  );
+}
