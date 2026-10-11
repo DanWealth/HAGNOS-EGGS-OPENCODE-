@@ -34,7 +34,7 @@ export default function Landing() {
         <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 24 }}>
           <h2 style={{ color: C.sun, marginTop: 0 }}>How a week runs</h2>
           <p><b>Wednesday morning</b> — Admin sets prices (locked all week) &nbsp;→&nbsp; <b>Wed–Mon</b> — you order, funds held &nbsp;→&nbsp; <b>Sunday</b> — Admin reviews prices &nbsp;→&nbsp; <b>Tuesday AM</b> — farm paid, truck rolls &nbsp;→&nbsp; <b>Tuesday PM</b> — delivery + crate swap &nbsp;→&nbsp; <b>Night</b> — funds released, credits to wallet.</p>
-          <a href="/order" style={{ display: "inline-block", background: C.sun, color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Start Monday's order</a>
+          <a href="/order" style={{ display: "inline-block", background: C.sun, color: C.ink, fontWeight: 800, padding: "12px 24px", borderRadius: 8, textDecoration: "none" }}>Start your order</a>
         </div>
       </div>
     </div>

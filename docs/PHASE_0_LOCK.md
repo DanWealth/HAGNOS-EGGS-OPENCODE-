@@ -9,7 +9,7 @@
 - Wallet: system-credited only (downgrade diff, breakage), auto-applied first on next checkout, immutable ledger, no MVP withdrawals.
 - Database: local PostgreSQL. Storage: Cloudflare R2. Auth: Better Auth (email + phone OTP via Termii/Africa's Talking). Hosting: local Docker Compose. No Supabase/Neon, no Vercel.
 
-## 0.2 Price model (admin sets every Sunday night)
+## 0.2 Price model (admin sets Wednesday morning; amended from Sunday — see PRD)
 - `PriceWeek { week_start, large, medium, pullet, hub_discount_pct, delivery_fee, crate_fee, locked_at }`
 - Checkout total = `crates × size_price × (1 - discount) + delivery_fee + (first_order ? crate_fee × crates : 0) − wallet_applied`
 - Downgrade credit = `(ordered_unit − delivered_unit) × crates` → WalletTx credit.

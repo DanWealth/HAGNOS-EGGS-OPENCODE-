@@ -24,7 +24,11 @@ export default function Order() {
     }).catch(() => {});
   }, []);
   const ok = crates >= 10;
-  const total = crates * prices[size];
+  const [quote, setQuote] = useState(null);
+  useEffect(() => {
+    const q = `/api/quote?size=${size}&crates=${crates}&zone=${zone}` + (buyer?.email ? `&email=${encodeURIComponent(buyer.email)}` : "");
+    fetch(q).then((r) => r.json()).then((j) => setQuote(j.total != null ? j : null)).catch(() => {});
+  }, [size, crates, zone, buyer]);
   const input = { width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 15, marginTop: 6 };
 
   useEffect(() => {
@@ -171,8 +175,8 @@ export default function Order() {
               <p style={{ fontWeight: 800, background: ok ? C.volt : C.rose, display: "inline-block", padding: "4px 12px", borderRadius: 20, border: `2px solid ${C.ink}` }}>{ok ? "✓ MOV met" : "Need at least 10 crates"}</p>
             </div>
             <div style={{ background: C.ink, color: "#fff", borderRadius: 12, padding: 16 }}>
-              <h3 style={{ color: C.sun }}>Total: ₦{total.toLocaleString()}</h3>
-              <p>Wallet applies first. First order adds crate fee ₦1,500/crate.</p>
+              <h3 style={{ color: C.sun }}>Total: ₦{(quote ? quote.total : crates * prices[size]).toLocaleString()}</h3>
+              <p>{quote ? `Eggs ₦${quote.gross.toLocaleString()}${quote.discount ? ` − hub ₦${quote.discount.toLocaleString()}` : ""} + delivery ₦${quote.fee.toLocaleString()}${quote.crateFee ? ` + first crates ₦${quote.crateFee.toLocaleString()}` : ""}${quote.walletApplied ? ` − wallet ₦${quote.walletApplied.toLocaleString()}` : ""}.` : "Wallet applies first. First order adds crate fee ₦1,500/crate."}</p>
               <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (e.g. 12 Allen Ave, Ikeja)" style={{ width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.sun}`, fontSize: 15, marginBottom: 8 }} />
               <button disabled={!ok || paying || !!paymentOrder} onClick={lockOrder} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: ok ? C.volt : "#999" }}>{paying ? "Saving order…" : "Place order"}</button>
               {paymentOrder && <div style={{ marginTop: 12, padding: 12, background: "#fff", color: C.ink, borderRadius: 8 }}>
@@ -188,7 +192,7 @@ export default function Order() {
             {hist.length > 0 && (
               <div style={{ background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 12, padding: 16 }}>
                 <h3>Recent orders</h3>
-                {hist.map((o) => (<p key={o.id}><b>{o.order_no || o.id.slice(0, 8)}</b> — {o.crates}× {o.size_ordered} — {o.status} {o.status === "FundsHeld" && <button onClick={() => cancelOrder(o.id)} style={{ marginLeft: 8, padding: "4px 10px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.rose, color: "#fff" }}>Cancel</button>}</p>))}
+                {hist.map((o) => (<p key={o.id}><b>{o.order_no || o.id.slice(0, 8)}</b> — {o.crates}× {o.size_ordered} — {o.status} <button onClick={() => { setSize(o.size_ordered); setCrates(o.crates); if (o.zone) setZone(o.zone); if (o.address) setAddress(o.address); setMsg(`Refilled from ${o.order_no || "past order"} — review and lock.`); window.scrollTo(0, 0); }} style={{ marginLeft: 8, padding: "4px 10px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.sun }}>Again</button> {o.status === "FundsHeld" && <button onClick={() => cancelOrder(o.id)} style={{ marginLeft: 8, padding: "4px 10px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: C.rose, color: "#fff" }}>Cancel</button>}</p>))}
               </div>
             )}
           </>

@@ -19,7 +19,7 @@ export default function Orders() {
           <small>Held ₦{Number(o.total_held).toLocaleString()} • {o.status} • {o.zone}{o.address ? ` • ${o.address}` : ""}</small>
         </div>
       ))}
-      {orders.length === 0 && <p>No orders yet. Order on Monday.</p>}
+      {orders.length === 0 && <p>No orders yet. Order Wed–Mon.</p>}
       <h2>Delivery updates</h2>
       {notes.map((n, i) => (
         <div key={i} style={{ background: "#FFF6BF", border: "2px solid #0A0A0A", borderRadius: 8, padding: 10, marginBottom: 8 }}>

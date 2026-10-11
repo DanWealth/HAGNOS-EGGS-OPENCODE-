@@ -148,10 +148,10 @@ The Administrator controls the operational and commercial configuration of the p
 
 The primary weekly operating cycle is:
 
-SUNDAY NIGHT  
-Admin Sets Weekly Prices  
+WEDNESDAY MORNING  
+Admin Sets Weekly Prices (locked all week)  
         ↓  
-MONDAY  
+WEDNESDAY–MONDAY  
 Buyers Place Orders & Funds Are Authorized/Held  
         ↓  
 MONDAY 11:59 PM  
@@ -1028,10 +1028,10 @@ The Administrator controls the operational and commercial configuration of the p
 
 The primary weekly operating cycle is:
 
-SUNDAY NIGHT  
-Admin Sets Weekly Prices  
+WEDNESDAY MORNING  
+Admin Sets Weekly Prices (locked all week)  
         ↓  
-MONDAY  
+WEDNESDAY–MONDAY  
 Buyers Place Orders & Funds Are Authorized/Held  
         ↓  
 MONDAY 11:59 PM  
