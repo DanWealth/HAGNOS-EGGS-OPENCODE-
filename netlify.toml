@@ -1,0 +1,12 @@
+# Netlify deploys the Next.js app in ./app. The database must be a hosted
+# Postgres (local Docker DB is unreachable from Netlify) — see docs/DEPLOY_NETLIFY.md.
+[build]
+  base = "app"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Never deploy app/.env — set every variable from app/.env.example
+# in the Netlify dashboard (Site settings → Environment variables).
