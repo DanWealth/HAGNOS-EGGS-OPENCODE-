@@ -18,6 +18,7 @@ export default function Order() {
   const [crates, setCrates] = useState(10);
   const [zone, setZone] = useState("mainland");
   const [address, setAddress] = useState("");
+  const [ownCrates, setOwnCrates] = useState(false);
   const [hist, setHist] = useState([]);
   const [paymentOrder, setPaymentOrder] = useState(null);
   const [paying, setPaying] = useState(false);
@@ -30,9 +31,9 @@ export default function Order() {
   const ok = crates >= 10;
   const [quote, setQuote] = useState(null);
   useEffect(() => {
-    const q = `/api/quote?size=${size}&crates=${crates}&zone=${zone}` + (buyer ? (buyer.email ? `&email=${encodeURIComponent(buyer.email)}` : buyer.phone ? `&phone=${encodeURIComponent(buyer.phone)}` : "") : "");
+    const q = `/api/quote?size=${size}&crates=${crates}&zone=${zone}&own_crates=${ownCrates}` + (buyer ? (buyer.email ? `&email=${encodeURIComponent(buyer.email)}` : buyer.phone ? `&phone=${encodeURIComponent(buyer.phone)}` : "") : "");
     fetch(q).then((r) => r.json()).then((j) => setQuote(j.total != null ? j : null)).catch(() => {});
-  }, [size, crates, zone, buyer]);
+  }, [size, crates, zone, buyer, ownCrates]);
   const input = { width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.ink}`, fontSize: 15, marginTop: 6 };
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function Order() {
       const r = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ size_ordered: size, crates, zone, address, ...whoBody() }),
+        body: JSON.stringify({ size_ordered: size, crates, zone, address, own_crates: ownCrates, ...whoBody() }),
       });
       const j = await r.json();
       if (!r.ok) {
@@ -201,6 +202,7 @@ export default function Order() {
               <h3 style={{ color: C.sun }}>Total: ₦{(quote ? quote.total : crates * prices[size]).toLocaleString()}</h3>
               <p>{quote ? `Eggs ₦${quote.gross.toLocaleString()}${quote.discount ? ` − hub ₦${quote.discount.toLocaleString()}` : ""} + delivery ₦${quote.fee.toLocaleString()}${quote.crateFee ? ` + first crates ₦${quote.crateFee.toLocaleString()}` : ""}${quote.walletApplied ? ` − wallet ₦${quote.walletApplied.toLocaleString()}` : ""}.` : "Wallet applies first. First order adds crate fee ₦1,500/crate."}</p>
               <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (e.g. 12 Allen Ave, Ikeja)" style={{ width: "100%", padding: 12, borderRadius: 8, border: `2px solid ${C.sun}`, fontSize: 15, marginBottom: 8 }} />
+              <label style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}><input type="checkbox" checked={ownCrates} onChange={(e) => setOwnCrates(e.target.checked)} style={{ width: 20, height: 20 }} /> I already own crates — skip the crate fee</label>
               <button disabled={!ok || paying || !!paymentOrder} onClick={lockOrder} style={{ padding: "12px 20px", fontWeight: 800, borderRadius: 8, border: `2px solid ${C.ink}`, background: ok ? C.volt : "#999" }}>{paying ? "Saving order…" : "Place order"}</button>
               {paymentOrder && <div style={{ marginTop: 12, padding: 12, background: "#fff", color: C.ink, borderRadius: 8 }}>
                 <b>Order {paymentOrder.orderNo}: ₦{paymentOrder.amount.toLocaleString("en-NG")} due</b>

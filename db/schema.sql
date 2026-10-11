@@ -40,6 +40,7 @@ CREATE TABLE orders (
   unit_price INTEGER NOT NULL,
   total_held INTEGER NOT NULL,
   wallet_applied INTEGER DEFAULT 0,
+  crate_fee INTEGER DEFAULT 0, -- First-Time Crate Fee actually charged (0 if buyer owns crates)
   status TEXT DEFAULT 'FundsHeld', -- FundsHeld | Validated | Dispatched | Delivered | Settled | Adjusted | Failed | Cancelled
   zone TEXT, -- mainland | island
   address TEXT,

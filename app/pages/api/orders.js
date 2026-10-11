@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const lagosDay = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" })).getDay();
     if (lagosDay === 2) return res.status(403).json({ error: "window-closed", message: "Tuesday is delivery day. Orders open Wed–Mon." });
   }
-  const { size_ordered, crates, zone, address, email, phone } = req.body || {};
+  const { size_ordered, crates, zone, address, email, phone, own_crates } = req.body || {};
   if (!UNIT[size_ordered]) return res.status(400).json({ error: "bad-size" });
   if (!crates || crates < 10) return res.status(400).json({ error: "mov-min-10" });
   const z = zone === "island" ? "island" : "mainland";
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   const gross = unit * crates;
   const discount = user.role === "hub_operator" ? Math.round((gross * (P.hub_discount_pct || 5)) / 100) : 0;
   const fee = z === "island" ? P.island_fee : P.mainland_fee;
-  const crateFee = !user.first_order_done ? P.crate_fee * crates : 0;
+  const crateFee = !user.first_order_done && !own_crates ? P.crate_fee * crates : 0;
   const subtotal = gross - discount + fee + crateFee;
 
   const w = await query("SELECT balance FROM wallet_accounts WHERE user_id=$1", [user.id]);
@@ -54,8 +54,8 @@ export default async function handler(req, res) {
   const no = await query("SELECT nextval('order_no_seq') AS n");
   const orderNo = "HG-" + String(no.rows[0].n).padStart(6, "0");
   await query(
-    "INSERT INTO orders (id, order_no, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone, address) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'FundsHeld',$10,$11)",
-    [id, orderNo, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z, address || null]
+    "INSERT INTO orders (id, order_no, user_id, price_week_id, size_ordered, crates, unit_price, total_held, wallet_applied, status, zone, address, crate_fee) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'FundsHeld',$10,$11,$12)",
+    [id, orderNo, user.id, P.id, size_ordered, crates, unit, total, walletApplied, z, address || null, crateFee]
   );
   await query("INSERT INTO payment_holds (id, order_id, amount, status) VALUES ($1,$2,$3,'held')", [randomUUID(), id, total]);
   if (walletApplied > 0) {

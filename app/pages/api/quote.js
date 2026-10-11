@@ -5,7 +5,7 @@ const UNIT = { Large: 4500, Medium: 4000, Pullet: 3200 };
 // GET /api/quote?email=&size=&crates=&zone= -> true checkout total preview.
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
-  const { email, size, crates, zone } = req.query;
+  const { email, size, crates, zone, own_crates } = req.query;
   if (!UNIT[size] || !+crates || +crates < 1) return res.status(400).json({ error: "size and crates required" });
   const z = zone === "island" ? "island" : "mainland";
   const pw = await query("SELECT * FROM price_weeks ORDER BY week_start DESC LIMIT 1");
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   const gross = unit * +crates;
   const discount = role === "hub_operator" ? Math.round((gross * (P.hub_discount_pct || 5)) / 100) : 0;
   const fee = z === "island" ? P.island_fee : P.mainland_fee;
-  const crateFee = !firstDone ? P.crate_fee * +crates : 0;
+  const crateFee = !firstDone && own_crates !== "true" ? P.crate_fee * +crates : 0;
   const subtotal = gross - discount + fee + crateFee;
   const walletApplied = Math.min(balance, subtotal);
   res.status(200).json({ gross, discount, fee, crateFee, walletApplied, total: subtotal - walletApplied });
