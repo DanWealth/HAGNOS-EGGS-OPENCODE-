@@ -1,17 +1,18 @@
 import { query } from "./db";
 
 // Server-side admin gate for money/state-changing endpoints.
-// The session cookie is checked against Better Auth, then the email
-// must be listed in ADMIN_EMAILS (app/.env, comma-separated).
+// Better Auth session cookies arrive as "token.signature" while the
+// database stores the raw token, so compare only the part before ".".
+// The email must then be listed in ADMIN_EMAILS (app/.env, comma-separated).
 export async function requireAdmin(req, res) {
   const raw = req.headers.cookie || "";
-  const cookies = Object.fromEntries(
+  const jar = Object.fromEntries(
     raw.split(";").map((c) => {
       const i = c.indexOf("=");
-      return [c.slice(0, i).trim(), decodeURIComponent((c.slice(i + 1) || "").trim())];
+      return [c.slice(0, i).trim(), (c.slice(i + 1) || "").trim()];
     }).filter(([k]) => k)
   );
-  const token = cookies["better-auth.session_token"];
+  const token = decodeURIComponent(jar["better-auth.session_token"] || "").split(".")[0];
   if (!token) {
     res.status(401).json({ error: "sign-in required" });
     return false;
