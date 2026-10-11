@@ -1,4 +1,5 @@
 import { theme as C } from "../lib/theme";
+import InstallButton from "../components/InstallButton";
 
 export function windowStatus() {
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
@@ -13,7 +14,10 @@ export default function Landing() {
     <div style={{ fontFamily: "Inter, system-ui", background: C.mist, minHeight: "100vh", color: C.ink }}>
       <div style={{ background: C.ink, color: "#fff", padding: "14px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `6px solid ${C.volt}` }}>
         <b style={{ fontSize: 20 }}>Hagnos <span style={{ color: C.sun }}>Eggs</span></b>
-        <a href="/order" style={{ background: C.sun, color: C.ink, fontWeight: 800, padding: "10px 18px", borderRadius: 8, textDecoration: "none", border: `2px solid #fff` }}>Place your order</a>
+        <span style={{ display: "flex", gap: 8 }}>
+          <InstallButton />
+          <a href="/order" style={{ background: C.sun, color: C.ink, fontWeight: 800, padding: "10px 18px", borderRadius: 8, textDecoration: "none", border: `2px solid #fff` }}>Place your order</a>
+        </span>
       </div>
 
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 20px", display: "grid", gap: 28 }}>
