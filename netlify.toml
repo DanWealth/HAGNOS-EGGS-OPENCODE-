@@ -8,5 +8,8 @@
 [build.environment]
   NODE_VERSION = "20"
 
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 # Never deploy app/.env — set every variable from app/.env.example
 # in the Netlify dashboard (Site settings → Environment variables).
