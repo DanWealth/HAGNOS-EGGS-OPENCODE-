@@ -8,3 +8,6 @@ out/
 
 # Local Netlify folder
 .netlify
+.android-build-tools/
+app/android/.gradle/
+app/android/app/build/
